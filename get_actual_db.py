@@ -1,3 +1,5 @@
+import os.path
+import sys
 import traceback
 
 import requests
@@ -39,12 +41,12 @@ def get_number_of_pages():
     return highest_page
 
 
-def get_database_of_lost_places():
+def get_database_of_lost_places(path):
     num_of_pages = get_number_of_pages()
     counter = 0
     for i in range(1, num_of_pages + 1):
-        url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=' + str(i)
-        response = requests.get(url)
+        url_lost_places = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=' + str(i)
+        response = requests.get(url_lost_places)
         soup = BeautifulSoup(response.text, 'html.parser')
         table_lost_places = soup.find('table')
         for tr in table_lost_places.findAll("tr"):
@@ -56,12 +58,15 @@ def get_database_of_lost_places():
                     session = requests.Session()
                     response = session.get(url_main + link)
                     savePage(response,
-                             '/media/pali/8F0A-DF4B/zanikle_obce/item_{:05d}'.format(counter))
+                             os.path.join(path, 'item_{:05d}'.format(counter)))
             except AttributeError as attr_error:
-                pass
+                print('attribute error - this should not be problem. Stacktrace follows' + str(attr_error))
             except Exception as any_exception:
                 print('Exception occurred:' + str(any_exception) + 'stack trace follows')
                 print(traceback.format_exc())
 
 
-get_database_of_lost_places()
+if len(sys.argv) != 2:
+    print('1 argument required - path, where to save database of lost places')
+else:
+    get_database_of_lost_places(sys.argv[1])
