@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import unquote, urlparse
 from pathlib import PurePosixPath
 
-from page_download_2 import savePage
+from page_download_2 import save_page
 
 url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1'
 url_main = 'http://www.zanikleobce.cz/'
@@ -41,8 +41,11 @@ def get_number_of_pages():
     return highest_page
 
 
-def get_database_of_lost_places(path):
-    num_of_pages = get_number_of_pages()
+def get_database_of_lost_places(path, is_test=False):
+    if is_test:
+        num_of_pages = 1
+    else:
+        num_of_pages = get_number_of_pages()
     counter = 0
     for i in range(1, num_of_pages + 1):
         url_lost_places = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=' + str(i)
@@ -57,8 +60,8 @@ def get_database_of_lost_places(path):
                     counter += 1
                     session = requests.Session()
                     response = session.get(url_main + link)
-                    savePage(response,
-                             os.path.join(path, 'item_{:05d}'.format(counter)))
+                    save_page(response,
+                              os.path.join(path, 'item_{:05d}'.format(counter)))
             except AttributeError as attr_error:
                 print('attribute error - this should not be problem. Stacktrace follows' + str(attr_error))
             except Exception as any_exception:

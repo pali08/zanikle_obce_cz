@@ -26,27 +26,19 @@ def soupfindAllnSave(pagefolder, url, soup, tag2find='img', inner='src'):
     return soup
 
 
-def savePage(response, pagefilename='page'):
+def get_page(response, pagefilename='page'):
     url = response.url
-    response.encoding='windows-1250'
+    response.encoding = 'windows-1250'
     soup = BeautifulSoup(response.text)
-    # print(soup.original_encoding)
     pagefolder = pagefilename + '_files'  # page contents
     soup = soupfindAllnSave(pagefolder, url, soup, 'img', inner='src')
     soup = soupfindAllnSave(pagefolder, url, soup, 'link', inner='href')
     soup = soupfindAllnSave(pagefolder, url, soup, 'script', inner='src')
-    # print(type(soup))
-    # try:
-    #     with open(pagefilename + '.html', mode='w', encoding='windows-1250') as file:
-    #         file.write(soup.decode_contents(eventual_encoding='windows-1250'))
-    # except UnicodeEncodeError:
-    with open(pagefilename + '.html', mode='w', encoding='utf-8') as file:
-        file.write(soup.decode_contents(eventual_encoding='utf-8'))
-
     return soup
 
 
-# example how to download page:
-# #... whatever requests config you need here
-# response = session.get('http://www.zanikleobce.cz/index.php?obec=1')
-# savePage(response, '/home/pali/zan_obc')
+def save_page(response, pagefilename='page'):
+    soup = get_page(response, pagefilename)
+    with open(pagefilename + '.html', mode='w', encoding='utf-8') as file:
+        file.write(soup.decode_contents(eventual_encoding='utf-8'))
+    # return soup
