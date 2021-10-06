@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 
-def soupfindAllnSave(pagefolder, url, soup, tag2find='img', inner='src'):
+def soup_find_all_and_save(pagefolder, url, soup, tag2find='img', inner='src'):
     if not os.path.exists(pagefolder):  # create only once
         os.mkdir(pagefolder)
     for res in soup.findAll(tag2find):  # images, css, etc..
@@ -31,9 +31,9 @@ def get_page(response, pagefilename='page'):
     response.encoding = 'windows-1250'
     soup = BeautifulSoup(response.text)
     pagefolder = pagefilename + '_files'  # page contents
-    soup = soupfindAllnSave(pagefolder, url, soup, 'img', inner='src')
-    soup = soupfindAllnSave(pagefolder, url, soup, 'link', inner='href')
-    soup = soupfindAllnSave(pagefolder, url, soup, 'script', inner='src')
+    soup = soup_find_all_and_save(pagefolder, url, soup, 'img', inner='src')
+    soup = soup_find_all_and_save(pagefolder, url, soup, 'link', inner='href')
+    soup = soup_find_all_and_save(pagefolder, url, soup, 'script', inner='src')
     return soup
 
 

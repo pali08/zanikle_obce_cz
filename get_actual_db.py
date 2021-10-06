@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import unquote, urlparse
 from pathlib import PurePosixPath
 
-from page_download_2 import save_page
+from page_download import save_page
 
 url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1'
 url_main = 'http://www.zanikleobce.cz/'
