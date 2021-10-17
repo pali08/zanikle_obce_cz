@@ -1,5 +1,7 @@
 import unittest
 
+import pytest as pytest
+
 from get_data_from_page import get_soup, get_coordinates, get_basic_info, get_other_articles
 
 
@@ -8,10 +10,11 @@ class MyTestCase(unittest.TestCase):
     soup2 = get_soup('http://www.zanikleobce.cz/index.php?obec=13927')
 
     def test_coordinates_1(self):
-        self.assertEqual(get_coordinates(self.soup1), {'n': 49.35783, 'e': 16.00700})  # add assertion here
+        # self.assertTrue(get_coordinates(self.soup1) == pytest.approx({'N': 49.35783, 'E': 16.00700}))  # add assertion here
+        self.assertEqual(get_coordinates(self.soup1), {'N': 49.35783, 'E': 16.00700})  # add assertion here
 
     def test_coordinates_2(self):
-        self.assertEqual(get_coordinates(self.soup2), {'n': 50.31831, 'e': 12.10138})  # add assertion here
+        self.assertEqual(get_coordinates(self.soup2), {'N': 50.31831, 'E': 12.10138})  # add assertion here
 
     def test_get_basic_info_1(self):
         self.assertEqual(get_basic_info(self.soup1), {'category': 'Hrad, zámek, tvrz',
