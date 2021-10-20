@@ -12,7 +12,10 @@ def get_soup(webpage_address):
 
 
 def get_basic_info(soup):
-    pass
+    table = soup.find('table').findNext('table').findAll('tr')[2].findAll('td')[0].findAll('div')[0]
+    for a in table.findAll('a', href=True):
+        print("Found the URL:", a['href'])
+    return table
 
 
 def get_coordinates(soup):
@@ -45,7 +48,8 @@ def get_images(soup):
 
 def get_data_from_page(address):
     soup = get_soup(address)
-    print(get_coordinates(soup))
+    # print(get_coordinates(soup))
+    print(get_basic_info(soup))
     # print(next(table))
     # print(table)
 
