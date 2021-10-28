@@ -13,9 +13,44 @@ def get_soup(webpage_address):
 
 def get_basic_info(soup):
     table = soup.find('table').findNext('table').findAll('tr')[2].findAll('td')[0].findAll('div')[0]
-    for a in table.findAll('a', href=True):
-        print("Found the URL:", a['href'])
-    return table
+    # print(table.prettify())
+    basic_info_dict = {}
+    category_found = False
+    basic_info_dict['name'] =  table.find('big').find('b').find('a', href=True).contents[0].strip()
+    # basic_info_dict.update(table.find('big').find('b').find('a', href=True).contents[0])
+    for b in table.findAll('b'):
+        for a in b.findAll('a', href=True):
+            # print("Found the URL:", a['href'])
+            # print(a.contents[0])
+            href_in_anchor = str(a['href'])
+            if 'index.php?menu=11&typ=' in href_in_anchor:
+                # print(a['href'])
+                # print(a.contents[0])
+                basic_info_dict.update({'category': a.contents[0]})
+                if '(správní obec:'.lower() in b.next_sibling:
+                    basic_info_dict.update({'municipality': b.find_next_sibling('b').contents[0]})
+                    # print(b.find_next_sibling('b').contents[0])
+                    # print('next sibling is: {}'.format(b.next_sibling))
+            if 'index.php?menu=11&okr=' in href_in_anchor:
+                basic_info_dict.update({'district': a.contents[0]})
+            if 'index.php?menu=11&duv=' in href_in_anchor:
+                basic_info_dict.update({'end_reason': a.contents[0]})
+            if 'index.php?menu=11&obd=' in href_in_anchor:
+                basic_info_dict.update({'end_years': a.contents[0]})
+            if 'index.php?menu=11&stv=' in href_in_anchor:
+                basic_info_dict.update({'actual_state': a.contents[0]})
+
+            # print(a['href'])
+            # if '&typ=' in str(a['href']):
+            #     try:
+            #         print(a['title'])
+            #         if a['title'] != 'Interaktivní mapa':
+            #             basic_info_dict.update({'category': a.contents[0]})
+            #             category_found = True
+            #     except KeyError:
+            #         continue
+            # print(basic_info_dict)
+    return basic_info_dict
 
 
 def get_coordinates(soup):
@@ -29,14 +64,6 @@ def get_coordinates(soup):
     return {north_south: float(north_south_coords), east_west: float(east_west_coords)}
 
 
-def get_other_articles(soup):
-    pass
-
-
-def get_comments(soup):
-    pass
-
-
 def get_images(soup):
     """
     :param soup:
@@ -46,12 +73,16 @@ def get_images(soup):
     pass
 
 
-def get_data_from_page(address):
+def get_data_of_place(address):
     soup = get_soup(address)
+    info = get_basic_info(soup)
+    coords = get_coordinates(soup)
+    info.update(coords)
+    return info
     # print(get_coordinates(soup))
-    print(get_basic_info(soup))
+    # print(get_basic_info(soup).prettify())
     # print(next(table))
     # print(table)
 
 
-get_data_from_page('http://www.zanikleobce.cz/index.php?obec=28139')
+# get_data_of_place('http://www.zanikleobce.cz/index.php?obec=25787')
