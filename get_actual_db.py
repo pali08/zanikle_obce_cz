@@ -8,10 +8,16 @@ from bs4 import BeautifulSoup
 from urllib.parse import unquote, urlparse
 from pathlib import PurePosixPath
 
+from get_data_from_page import get_data_of_place
 from page_download import save_page
 
 url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1'
 url_main = 'http://www.zanikleobce.cz/'
+WESTEST_POINT = 12.09139
+EASTEST_POINT = 18.85889
+NORTHEST_POINT = 51.05556
+SOUTHEST_POINT = 48.55251
+DECIMAL_PLACES_COORDS = 100000
 
 
 # print(table)
@@ -39,6 +45,21 @@ def get_number_of_pages():
             print('Exception occurred:' + str(any_exception) + 'stack trace follows')
             print(traceback.format_exc())
     return highest_page
+
+
+def create_empty_database_with_coords_as_key(sampling):
+    eastest = int(((EASTEST_POINT * DECIMAL_PLACES_COORDS) / sampling) + 1)
+    westest = int((WESTEST_POINT * DECIMAL_PLACES_COORDS) / sampling)
+    northest = int(((NORTHEST_POINT * DECIMAL_PLACES_COORDS) / sampling) + 1)
+    southest = int((SOUTHEST_POINT * DECIMAL_PLACES_COORDS) / sampling)
+    return [[[] for longitude in range(0, westest-eastest)] for latitude in range(0, northest - southest)]
+
+
+def append_to_database_with_coords_as_key(list_of_places, web_address, sampling=1):
+    data_of_place = get_data_of_place(web_address)
+    longitude_index = int(((data_of_place['E']-WESTEST_POINT) * DECIMAL_PLACES_COORDS) / sampling)
+    latitude_index = int(((data_of_place['N']-SOUTHEST_POINT) * DECIMAL_PLACES_COORDS) / sampling)
+    list_of_places[latitude_index][longitude_index].append(data_of_place)
 
 
 def get_database_of_lost_places(path, is_test=False):
