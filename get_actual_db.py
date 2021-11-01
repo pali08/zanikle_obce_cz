@@ -47,19 +47,39 @@ def get_number_of_pages():
     return highest_page
 
 
-def create_empty_database_with_coords_as_key(sampling):
-    eastest = int(((EASTEST_POINT * DECIMAL_PLACES_COORDS) / sampling) + 1)
-    westest = int((WESTEST_POINT * DECIMAL_PLACES_COORDS) / sampling)
-    northest = int(((NORTHEST_POINT * DECIMAL_PLACES_COORDS) / sampling) + 1)
-    southest = int((SOUTHEST_POINT * DECIMAL_PLACES_COORDS) / sampling)
-    return [[[] for longitude in range(0, westest-eastest)] for latitude in range(0, northest - southest)]
+def create_empty_database_with_coords_as_key(sampling=100):
+    eastest = int(((EASTEST_POINT * DECIMAL_PLACES_COORDS) // sampling) + 1)
+    westest = int((WESTEST_POINT * DECIMAL_PLACES_COORDS) // sampling)
+    northest = int(((NORTHEST_POINT * DECIMAL_PLACES_COORDS) // sampling) + 1)
+    southest = int((SOUTHEST_POINT * DECIMAL_PLACES_COORDS) // sampling)
+    print(eastest - westest)
+    print(northest - southest)
+    return [[[] for longitude in range(0, northest - southest)] for latitude in range(0, eastest - westest)]
 
 
-def append_to_database_with_coords_as_key(list_of_places, web_address, sampling=1):
+# print(create_empty_database_with_coords_as_key(10))
+create_empty_database_with_coords_as_key(100)
+
+
+def append_to_database_with_coords_as_key(list_of_places, web_address, sampling=100):
     data_of_place = get_data_of_place(web_address)
-    longitude_index = int(((data_of_place['E']-WESTEST_POINT) * DECIMAL_PLACES_COORDS) / sampling)
-    latitude_index = int(((data_of_place['N']-SOUTHEST_POINT) * DECIMAL_PLACES_COORDS) / sampling)
+    longitude_index = int(((data_of_place['N'] - SOUTHEST_POINT) * DECIMAL_PLACES_COORDS) / sampling)
+    latitude_index = int(((data_of_place['E'] - WESTEST_POINT) * DECIMAL_PLACES_COORDS) / sampling)
     list_of_places[latitude_index][longitude_index].append(data_of_place)
+    for i in range(0, len(list_of_places)):
+        for j in range(0, len(list_of_places[i])):
+            try:
+                list_of_places[i][j][0]
+                print('index is' + str(i) + ', ' + str(j))
+            except IndexError:
+                pass
+    return list_of_places
+
+
+empty_list_of_lost_places = create_empty_database_with_coords_as_key(sampling=100)
+
+append_to_database_with_coords_as_key(empty_list_of_lost_places,
+                                      'http://www.zanikleobce.cz/index.php?obec=26519', sampling=100)
 
 
 def get_database_of_lost_places(path, is_test=False):
@@ -89,8 +109,7 @@ def get_database_of_lost_places(path, is_test=False):
                 print('Exception occurred:' + str(any_exception) + 'stack trace follows')
                 print(traceback.format_exc())
 
-
-if len(sys.argv) != 2:
-    print('1 argument required - path, where to save database of lost places')
-else:
-    get_database_of_lost_places(sys.argv[1])
+# if len(sys.argv) != 2:
+#     print('1 argument required - path, where to save database of lost places')
+# else:
+#     get_database_of_lost_places(sys.argv[1])
