@@ -86,4 +86,4 @@ def get_data_of_place(address):
 
 
 # get_data_of_place('http://www.zanikleobce.cz/index.php?obec=25787')
-print(get_data_of_place('http://www.zanikleobce.cz/index.php?obec=26519'))
+# print(get_data_of_place('http://www.zanikleobce.cz/index.php?obec=26519'))

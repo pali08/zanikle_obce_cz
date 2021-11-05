@@ -1,4 +1,5 @@
 import os.path
+import pickle
 import sys
 import traceback
 
@@ -53,8 +54,8 @@ def create_empty_database_with_coords_as_key(sampling=SAMPLING):
     westest = int((WESTEST_POINT * DECIMAL_PLACES_COORDS) // sampling)
     northest = int(((NORTHEST_POINT * DECIMAL_PLACES_COORDS) // sampling) + 1)
     southest = int((SOUTHEST_POINT * DECIMAL_PLACES_COORDS) // sampling)
-    print(eastest - westest)
-    print(northest - southest)
+    # print(eastest - westest)
+    # print(northest - southest)
     return [[[] for latitude in range(0, northest - southest)] for longitude in range(0, eastest - westest)]
 
 
@@ -103,14 +104,23 @@ def get_database_of_lost_places_as_list():
         for tr in table_lost_places.findAll("tr"):
             tds = tr.findAll("td")
             try:
-                link = tds[0].find('a')['href']
-                if 'obec=' in link:
-                    append_to_database_with_coords_as_key(places_as_list, url_main + link, sampling=SAMPLING)
+                link_anchor = tds[0].find('a')
+                if link_anchor is not None:
+                    link_href = link_anchor['href']
+                    if 'obec=' in link_href:
+                        try:
+                            append_to_database_with_coords_as_key(places_as_list, url_main + link_href, sampling=SAMPLING)
+                            print('temp_output - getting data from page: ' + str(link_href))
+                        except IndexError:
+                            print('some problem with coordinates in link: ' + link_href)
             except AttributeError as attr_error:
-                print('attribute error - this should not be problem. Stacktrace follows' + str(attr_error))
+                print('attribute error - this should not be problem. Stacktrace follows: ' + str(attr_error))
             except Exception as any_exception:
-                print('Exception occurred:' + str(any_exception) + 'stack trace follows')
+                print('Exception occurred:' + str(any_exception) + 'stack trace follows: ')
+                # print()
                 print(traceback.format_exc())
+    with open(os.path.join('database_pickle', 'lost_places_list')) as lpl:
+        pickle.dump(places_as_list, lpl)
 
 
 def get_database_of_lost_places(path, is_test=False):
@@ -140,7 +150,11 @@ def get_database_of_lost_places(path, is_test=False):
                 print('Exception occurred:' + str(any_exception) + 'stack trace follows')
                 print(traceback.format_exc())
 
-# if len(sys.argv) != 2:
-#     print('1 argument required - path, where to save database of lost places')
-# else:
-#     get_database_of_lost_places(sys.argv[1])
+
+if len(sys.argv) == 1:
+    get_database_of_lost_places_as_list()
+    # print('1 argument required - path, where to save database of lost places')
+elif len(sys.argv) == 2:
+    get_database_of_lost_places(sys.argv[1])
+else:
+    print('0 arguments or 1 argument required - path, where to save database of lost places')
