@@ -1,5 +1,6 @@
 import os.path
 import pickle
+import sqlite3
 import sys
 import traceback
 
@@ -95,7 +96,19 @@ def get_indices_from_coordinates(place, sampling=SAMPLING):
 
 def get_database_of_lost_places_as_list():
     num_of_pages = get_number_of_pages()
-    places_as_list = create_empty_database_with_coords_as_key(sampling=SAMPLING)
+    # places_as_list = create_empty_database_with_coords_as_key(sampling=SAMPLING)
+    con = sqlite3.connect(os.path.join('.', 'database.db'))
+    cur = con.cursor()
+    cur.execute('''CREATE TABLE database_lost_places 
+    (link text primary key, 
+    name text, 
+    category text, 
+    district text, 
+    end_reason text, 
+    end_years text, 
+    actual_state text, 
+    north real, 
+    east real)''')
     for i in range(1, num_of_pages + 1):
         url_lost_places = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=' + str(i)
         response = requests.get(url_lost_places)
@@ -108,19 +121,42 @@ def get_database_of_lost_places_as_list():
                 if link_anchor is not None:
                     link_href = link_anchor['href']
                     if 'obec=' in link_href:
+                        full_link = url_main + link_href
+                        data_of_lost_place = get_data_of_place(full_link)
                         try:
-                            append_to_database_with_coords_as_key(places_as_list, url_main + link_href, sampling=SAMPLING)
-                            print('temp_output - getting data from page: ' + str(link_href))
-                        except IndexError:
-                            print('some problem with coordinates in link: ' + link_href)
+                            cur.execute(
+                                "insert into database_lost_places(link, name, category, district, end_reason, "
+                                "actual_state, north, east) "
+                                "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
+                                    full_link, data_of_lost_place['name'], data_of_lost_place['category'],
+                                    data_of_lost_place['district'], data_of_lost_place['end_reason'],
+                                    data_of_lost_place['actual_state'], data_of_lost_place['N'],
+                                    data_of_lost_place['E']
+                                ))
+                            print('temp_output - got data from page: ' + str(link_href))
+                        except sqlite3.OperationalError:
+                            print('sqlite3.operational error on {}, data_of_lost_place {}, stacktrace folows:'.format(
+                                full_link, str(data_of_lost_place)))
+                            print(traceback.format_exc())
+                        # try:
+                        #     append_to_database_with_coords_as_key(places_as_list, url_main + link_href,
+                        #                                           sampling=SAMPLING)
+                        #     print('temp_output - getting data from page: ' + str(link_href))
+                        # except IndexError:
+                        #     print('some problem with coordinates in link: ' + link_href)
             except AttributeError as attr_error:
                 print('attribute error - this should not be problem. Stacktrace follows: ' + str(attr_error))
             except Exception as any_exception:
                 print('Exception occurred:' + str(any_exception) + 'stack trace follows: ')
                 # print()
                 print(traceback.format_exc())
-    with open(os.path.join('database_pickle', 'lost_places_list')) as lpl:
-        pickle.dump(places_as_list, lpl)
+    # with open(os.path.join('database_pickle', 'lost_places_list'), mode='wb') as lpl:
+    #     sys.setrecursionlimit(6000)
+    #     pickle.dump(places_as_list, lpl, protocol=-1)
+    cur.execute("CREATE INDEX index_north ON database_lost_places (north);")
+    cur.execute("CREATE INDEX index_east ON database_lost_places (east);")
+    con.commit()
+    con.close()
 
 
 def get_database_of_lost_places(path, is_test=False):

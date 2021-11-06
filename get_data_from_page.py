@@ -16,7 +16,7 @@ def get_basic_info(soup):
     # print(table.prettify())
     basic_info_dict = {}
     category_found = False
-    basic_info_dict['name'] =  table.find('big').find('b').find('a', href=True).contents[0].strip()
+    basic_info_dict['name'] = table.find('big').find('b').find('a', href=True).contents[0].strip().replace('\'', '`')
     # basic_info_dict.update(table.find('big').find('b').find('a', href=True).contents[0])
     for b in table.findAll('b'):
         for a in b.findAll('a', href=True):
@@ -28,17 +28,17 @@ def get_basic_info(soup):
                 # print(a.contents[0])
                 basic_info_dict.update({'category': a.contents[0]})
                 if '(správní obec:'.lower() in b.next_sibling:
-                    basic_info_dict.update({'municipality': b.find_next_sibling('b').contents[0]})
+                    basic_info_dict.update({'municipality': b.find_next_sibling('b').contents[0].replace('\'', '`')})
                     # print(b.find_next_sibling('b').contents[0])
                     # print('next sibling is: {}'.format(b.next_sibling))
             if 'index.php?menu=11&okr=' in href_in_anchor:
-                basic_info_dict.update({'district': a.contents[0]})
+                basic_info_dict.update({'district': a.contents[0].replace('\'', '`')})
             if 'index.php?menu=11&duv=' in href_in_anchor:
-                basic_info_dict.update({'end_reason': a.contents[0]})
+                basic_info_dict.update({'end_reason': a.contents[0].replace('\'', '`')})
             if 'index.php?menu=11&obd=' in href_in_anchor:
-                basic_info_dict.update({'end_years': a.contents[0]})
+                basic_info_dict.update({'end_years': a.contents[0].replace('\'', '`')})
             if 'index.php?menu=11&stv=' in href_in_anchor:
-                basic_info_dict.update({'actual_state': a.contents[0]})
+                basic_info_dict.update({'actual_state': a.contents[0].replace('\'', '`')})
 
             # print(a['href'])
             # if '&typ=' in str(a['href']):
@@ -76,14 +76,17 @@ def get_images(soup):
 def get_data_of_place(address):
     soup = get_soup(address)
     info = get_basic_info(soup)
-    coords = get_coordinates(soup)
-    info.update(coords)
+    try:
+        coords = get_coordinates(soup)
+        info.update(coords)
+    except IndexError:
+        info.update({'N': 'NULL', 'E': 'NULL'})
+        print('No coordinates for {}, {}'.format(address, info['name']))
     return info
     # print(get_coordinates(soup))
     # print(get_basic_info(soup).prettify())
     # print(next(table))
     # print(table)
-
 
 # get_data_of_place('http://www.zanikleobce.cz/index.php?obec=25787')
 # print(get_data_of_place('http://www.zanikleobce.cz/index.php?obec=26519'))
