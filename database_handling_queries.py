@@ -24,8 +24,5 @@ def get_places_in_radius(specified_point, radius, db_connection):
     cursor.execute('SELECT * FROM database_lost_places WHERE getdistance({}, {}, north, east) < {}'.format(
         str(specified_point_latitude), str(specified_point_longitude), str(radius)))
     rows = cursor.fetchall()
-    print(rows)
+    db_connection.close()
     return rows
-
-
-get_places_in_radius([49.87761, 13.25314], 15, sqlite3.connect(os.path.join('.', 'database.db')))
