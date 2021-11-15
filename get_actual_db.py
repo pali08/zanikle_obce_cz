@@ -48,7 +48,7 @@ def get_number_of_pages():
     return highest_page
 
 
-def get_database_of_lost_places_as_list():
+def get_database_of_lost_places_sqlitedb():
     num_of_pages = get_number_of_pages()
     con = sqlite3.connect(os.path.join('.', 'database.db'))
     cur = con.cursor()
@@ -107,7 +107,7 @@ def get_database_of_lost_places_as_list():
     con.close()
 
 
-def get_database_of_lost_places(path, is_test=False):
+def get_database_of_lost_places_pages(path, is_test=False):
     if is_test:
         num_of_pages = 1
     else:
@@ -136,8 +136,8 @@ def get_database_of_lost_places(path, is_test=False):
 
 
 if len(sys.argv) == 1:
-    get_database_of_lost_places_as_list()
+    get_database_of_lost_places_sqlitedb()
 elif len(sys.argv) == 2:
-    get_database_of_lost_places(sys.argv[1])
+    get_database_of_lost_places_pages(sys.argv[1])
 else:
     print('0 arguments or 1 argument required - path, where to save database of lost places')
