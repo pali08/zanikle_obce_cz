@@ -23,8 +23,6 @@ DECIMAL_PLACES_COORDS = 100000
 SAMPLING = 100
 
 
-# print(table)
-
 def get_number_of_pages():
     url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1'
     response = requests.get(url)
@@ -50,65 +48,22 @@ def get_number_of_pages():
     return highest_page
 
 
-def create_empty_database_with_coords_as_key(sampling=SAMPLING):
-    eastest = int(((EASTEST_POINT * DECIMAL_PLACES_COORDS) // sampling) + 1)
-    westest = int((WESTEST_POINT * DECIMAL_PLACES_COORDS) // sampling)
-    northest = int(((NORTHEST_POINT * DECIMAL_PLACES_COORDS) // sampling) + 1)
-    southest = int((SOUTHEST_POINT * DECIMAL_PLACES_COORDS) // sampling)
-    # print(eastest - westest)
-    # print(northest - southest)
-    return [[[] for latitude in range(0, northest - southest)] for longitude in range(0, eastest - westest)]
-
-
-def append_to_database_with_coords_as_key(list_of_places, web_address, sampling=SAMPLING):
-    data_of_place = get_data_of_place(web_address)
-    indices = get_indices_from_coordinates(data_of_place, sampling=sampling)
-    list_of_places[indices[0]][indices[1]].append(data_of_place)
-    # for i in range(0, len(list_of_places)):
-    #     for j in range(0, len(list_of_places[i])):
-    #         try:
-    #             list_of_places[i][j][0]
-    #             print('index is' + str(i) + ', ' + str(j))
-    #         except IndexError:
-    #             pass
-    return list_of_places
-
-
-def get_indices_from_coordinates(place, sampling=SAMPLING):
-    try:
-        latitude = place['N']
-    except IndexError:
-        latitude = place['S']
-    try:
-        longitude = place['E']
-    except IndexError:
-        longitude = place['W']
-    latitude_index = int(((latitude - SOUTHEST_POINT) * DECIMAL_PLACES_COORDS) / sampling)
-    longitude_index = int(((longitude - WESTEST_POINT) * DECIMAL_PLACES_COORDS) / sampling)
-    return longitude_index, latitude_index
-
-
-# empty_list_of_lost_places = create_empty_database_with_coords_as_key(sampling=100)
-#
-# append_to_database_with_coords_as_key(empty_list_of_lost_places,
-#                                       'http://www.zanikleobce.cz/index.php?obec=26519', sampling=100)
-
-
 def get_database_of_lost_places_as_list():
     num_of_pages = get_number_of_pages()
-    # places_as_list = create_empty_database_with_coords_as_key(sampling=SAMPLING)
     con = sqlite3.connect(os.path.join('.', 'database.db'))
     cur = con.cursor()
     cur.execute('''CREATE TABLE database_lost_places 
     (link text primary key, 
     name text, 
-    category text, 
+    category text,
+    municipality text,
     district text, 
     end_reason text, 
     end_years text, 
     actual_state text, 
     north real, 
     east real)''')
+    # for i in range(1, 2):
     for i in range(1, num_of_pages + 1):
         url_lost_places = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=' + str(i)
         response = requests.get(url_lost_places)
@@ -125,10 +80,12 @@ def get_database_of_lost_places_as_list():
                         data_of_lost_place = get_data_of_place(full_link)
                         try:
                             cur.execute(
-                                "insert into database_lost_places(link, name, category, district, end_reason, "
+                                "insert into database_lost_places(link, name, category, municipality, district, "
+                                "end_reason, "
                                 "actual_state, north, east) "
-                                "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
+                                "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
                                     full_link, data_of_lost_place['name'], data_of_lost_place['category'],
+                                    data_of_lost_place['municipality'],
                                     data_of_lost_place['district'], data_of_lost_place['end_reason'],
                                     data_of_lost_place['actual_state'], data_of_lost_place['N'],
                                     data_of_lost_place['E']
@@ -138,21 +95,12 @@ def get_database_of_lost_places_as_list():
                             print('sqlite3.operational error on {}, data_of_lost_place {}, stacktrace folows:'.format(
                                 full_link, str(data_of_lost_place)))
                             print(traceback.format_exc())
-                        # try:
-                        #     append_to_database_with_coords_as_key(places_as_list, url_main + link_href,
-                        #                                           sampling=SAMPLING)
-                        #     print('temp_output - getting data from page: ' + str(link_href))
-                        # except IndexError:
-                        #     print('some problem with coordinates in link: ' + link_href)
             except AttributeError as attr_error:
                 print('attribute error - this should not be problem. Stacktrace follows: ' + str(attr_error))
             except Exception as any_exception:
                 print('Exception occurred:' + str(any_exception) + 'stack trace follows: ')
                 # print()
                 print(traceback.format_exc())
-    # with open(os.path.join('database_pickle', 'lost_places_list'), mode='wb') as lpl:
-    #     sys.setrecursionlimit(6000)
-    #     pickle.dump(places_as_list, lpl, protocol=-1)
     cur.execute("CREATE INDEX index_north ON database_lost_places (north);")
     cur.execute("CREATE INDEX index_east ON database_lost_places (east);")
     con.commit()
@@ -189,7 +137,6 @@ def get_database_of_lost_places(path, is_test=False):
 
 if len(sys.argv) == 1:
     get_database_of_lost_places_as_list()
-    # print('1 argument required - path, where to save database of lost places')
 elif len(sys.argv) == 2:
     get_database_of_lost_places(sys.argv[1])
 else:
