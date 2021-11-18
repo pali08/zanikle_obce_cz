@@ -60,5 +60,8 @@ def get_data_of_place(address):
         info.update(coords)
     except IndexError:
         info.update({'N': 'NULL', 'E': 'NULL'})
-        print('No coordinates for {}, {}'.format(address, info['name']))
+        print('IndexError - No coordinates for {}, {}'.format(address, info['name']))
+    except ValueError:
+        info.update({'N': 'NULL', 'E': 'NULL'})
+        print('ValueError - No coordinates for {}, {}'.format(address, info['name']))
     return info
