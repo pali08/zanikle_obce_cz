@@ -1,8 +1,10 @@
 import os.path
 import pickle
+import shutil
 import sqlite3
 import sys
 import traceback
+from shutil import copyfile, move
 
 import requests
 import pandas as pd
@@ -23,6 +25,20 @@ DECIMAL_PLACES_COORDS = 100000
 SAMPLING = 100
 
 
+def connection_is_ok():
+    try:
+        requests.get('http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1')
+        return True
+    except requests.exceptions.ConnectionError:
+        print('Connection could not be established, update will not be performed')
+        return False
+
+
+def backup_db():
+    if os.path.exists(os.path.join('.', 'database.db')):
+        move(os.path.join('.', 'database.db'), os.path.join('.', 'database.db_bck'))
+
+
 def get_number_of_pages():
     url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1'
     response = requests.get(url)
@@ -41,14 +57,20 @@ def get_number_of_pages():
                                 if int(link['href'].rsplit('str=')[1]) > highest_page:
                                     highest_page = int(link['href'].rsplit('str=')[1])
         except AttributeError as attr_error:
-            pass
+            print(
+                'While getting number of pages, attribute error occured - this should not be problem. Stacktrace '
+                'follows: ' + str(
+                    attr_error))
         except Exception as any_exception:
-            print('Exception occurred:' + str(any_exception) + 'stack trace follows')
+            print('While getting number of pages, unexpected exception occurred:\n' + str(any_exception) + '\nstack trace follows')
             print(traceback.format_exc())
     return highest_page
 
 
 def get_database_of_lost_places_sqlitedb():
+    if not connection_is_ok():
+        return
+    backup_db()
     num_of_pages = get_number_of_pages()
     con = sqlite3.connect(os.path.join('.', 'database.db'))
     cur = con.cursor()
@@ -98,16 +120,21 @@ def get_database_of_lost_places_sqlitedb():
             except AttributeError as attr_error:
                 print('attribute error - this should not be problem. Stacktrace follows: ' + str(attr_error))
             except Exception as any_exception:
-                print('Exception occurred:' + str(any_exception) + 'stack trace follows: ')
+                print('Unexpected xception occurred: \n' + str(any_exception) + '\nstack trace follows:\n')
                 # print()
                 print(traceback.format_exc())
     cur.execute("CREATE INDEX index_north ON database_lost_places (north);")
     cur.execute("CREATE INDEX index_east ON database_lost_places (east);")
     con.commit()
     con.close()
+    print('Database update/creation was finished (probably) successfully.'
+          'Old database is backed up as database.db_bck. If in doubt (e.g. too many unexpected exceptions occurred), '
+          'please replace database.db with database.db_bck')
 
 
 def get_database_of_lost_places_pages(path, is_test=False):
+    if not connection_is_ok():
+        return
     if is_test:
         num_of_pages = 1
     else:
@@ -133,6 +160,7 @@ def get_database_of_lost_places_pages(path, is_test=False):
             except Exception as any_exception:
                 print('Exception occurred:' + str(any_exception) + 'stack trace follows')
                 print(traceback.format_exc())
+    print('Backup of lost places pages was finished (probably) successfully.')
 
 
 if len(sys.argv) == 1:
