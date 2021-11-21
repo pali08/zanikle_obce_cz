@@ -28,9 +28,12 @@
      <rect>
       <x>680</x>
       <y>10</y>
-      <width>113</width>
+      <width>121</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="placeholderText">
+     <string>latitude, longitude</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_2">
@@ -38,35 +41,9 @@
      <rect>
       <x>680</x>
       <y>40</y>
-      <width>113</width>
+      <width>121</width>
       <height>23</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_3">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>70</y>
-      <width>113</width>
-      <height>23</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_4">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>100</y>
-      <width>113</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -79,7 +56,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Longitude left</string>
+     <string>center</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -92,40 +69,14 @@
      </rect>
     </property>
     <property name="text">
-     <string>Longitude right</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>586</x>
-      <y>70</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Latitude up</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>586</x>
-      <y>100</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Latitude down</string>
+     <string>radius</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
       <x>710</x>
-      <y>130</y>
+      <y>70</y>
       <width>80</width>
       <height>23</height>
      </rect>

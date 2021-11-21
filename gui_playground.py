@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox, QGr
 from PyQt5.QtCore import QFile, pyqtSlot
 
 # from ui_mainwindow import Ui_MainWindow
-from rectangle_area import get_image
+from circle_area import get_image
 
 
 class MainWindow(QMainWindow):
@@ -44,10 +44,8 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_click(self):
-        textbox_value_lon_left = float(self.ui.lineEdit.text())
-        textbox_value_lon_right = float(self.ui.lineEdit_2.text())
-        textbox_value_lat_up = float(self.ui.lineEdit_3.text())
-        textbox_value_lat_down = float(self.ui.lineEdit_4.text())
+        textbox_value_center = self.ui.lineEdit.text()
+        textbox_value_radius = float(self.ui.lineEdit_2.text())
         image_filepath_save = self.ui.lineEdit_save_image.text()
         while not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(
                 image_filepath_save):
@@ -58,7 +56,7 @@ class MainWindow(QMainWindow):
             print(image_filepath_save)
             self.ui.lineEdit_save_image.setText(image_filepath_save)
 
-        get_image(textbox_value_lat_down, textbox_value_lon_left, textbox_value_lat_up, textbox_value_lon_right,
+        get_image(textbox_value_center, textbox_value_radius,
                   filepath=image_filepath_save)
         self.draw_image(image_filepath_save)
         # get_image(49.4750, 15.8611, 49.5005, 15.9178)
