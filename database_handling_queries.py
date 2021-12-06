@@ -23,8 +23,10 @@ def get_places_in_radius(specified_point, radius, db_connection):
     specified_point_longitude = str(specified_point[1])
     db_connection.create_function('getdistance', 4, get_distance)
     cursor = db_connection.cursor()
-    cursor.execute('SELECT * FROM database_lost_places WHERE getdistance({}, {}, north, east) < {}'.format(
-        str(specified_point_latitude), str(specified_point_longitude), str(radius)))
+    cursor.execute(
+        'SELECT * FROM database_lost_places WHERE getdistance({}, {}, north, east) < {} and north is not null and '
+        'east is not null'.format(
+            str(specified_point_latitude), str(specified_point_longitude), str(radius)))
     rows = cursor.fetchall()
     db_connection.close()
     return rows
