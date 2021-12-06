@@ -101,29 +101,6 @@
      </sizepolicy>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButtonSetPath">
-    <property name="geometry">
-     <rect>
-      <x>710</x>
-      <y>510</y>
-      <width>80</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Save image</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_save_image">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>510</y>
-      <width>113</width>
-      <height>23</height>
-     </rect>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

@@ -3,6 +3,7 @@ from pathlib import Path
 
 from PyQt5.QtGui import QPixmap
 
+from circle_area_webpage import show_html_map_with_markers
 from gui_map_drawer import Ui_MainWindow
 
 import sys
@@ -20,7 +21,7 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.pushButton.clicked.connect(self.on_click)
-        self.ui.pushButtonSetPath.clicked.connect(self.on_click_set_path)
+        # self.ui.pushButtonSetPath.clicked.connect(self.on_click_set_path)
         self.show()
 
     def set_filename_open(self):
@@ -46,28 +47,31 @@ class MainWindow(QMainWindow):
     def on_click(self):
         textbox_value_center = self.ui.lineEdit.text()
         textbox_value_radius = float(self.ui.lineEdit_2.text())
-        image_filepath_save = self.ui.lineEdit_save_image.text()
-        while not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(
-                image_filepath_save):
-            QMessageBox.question(self, 'Problem saving file',
-                                 'Path not exists or file already exists. Pick another path', QMessageBox.Ok,
-                                 QMessageBox.Ok)
-            image_filepath_save = self.set_filename_save()[0]
-            print(image_filepath_save)
-            self.ui.lineEdit_save_image.setText(image_filepath_save)
+        image_filepath_save = 'map.png'
+        # image_filepath_save = self.ui.lineEdit_save_image.text()
+        # while not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(
+        #         image_filepath_save):
+        #     QMessageBox.question(self, 'Problem saving file',
+        #                          'Path not exists or file already exists. Pick another path', QMessageBox.Ok,
+        #                          QMessageBox.Ok)
+        #     image_filepath_save = self.set_filename_save()[0]
+        #     print(image_filepath_save)
+        #     self.ui.lineEdit_save_image.setText(image_filepath_save)
 
         get_image(textbox_value_center, textbox_value_radius,
                   filepath=image_filepath_save)
         self.draw_image(image_filepath_save)
         # get_image(49.4750, 15.8611, 49.5005, 15.9178)
-        QMessageBox.question(self, 'File save', 'The file was saved to' + image_filepath_save,
+        html_map_filepath = 'map.html'
+        show_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
+        QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
                              QMessageBox.Ok,
                              QMessageBox.Ok)
 
-    @pyqtSlot()
-    def on_click_set_path(self):
-        QFileDialog.getSaveFileName()
-        self.ui.lineEdit_save_image.setText(self.set_filename_open())
+    # @pyqtSlot()
+    # def on_click_set_path(self):
+    #     QFileDialog.getSaveFileName()
+    #     self.ui.lineEdit_save_image.setText(self.set_filename_open())
 
 
 if __name__ == "__main__":
