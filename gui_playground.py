@@ -2,14 +2,15 @@ import os
 from pathlib import Path
 
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 from circle_area_webpage import show_html_map_with_markers
 from gui_map_drawer import Ui_MainWindow
 
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox, QGraphicsPixmapItem, QGraphicsScene, \
-    QFileDialog
-from PyQt5.QtCore import QFile, pyqtSlot
+    QFileDialog, QTextEdit, QWidget, QGridLayout
+from PyQt5.QtCore import QFile, pyqtSlot, QUrl
 
 # from ui_mainwindow import Ui_MainWindow
 from circle_area import get_image
@@ -20,6 +21,9 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.ui.gridLayout.setColumnStretch(0, 1)
+        self.ui.gridLayout.setRowStretch(0, 1)
         self.ui.pushButton.clicked.connect(self.on_click)
         # self.ui.pushButtonSetPath.clicked.connect(self.on_click_set_path)
         self.show()
@@ -43,6 +47,15 @@ class MainWindow(QMainWindow):
         scene.addItem(item)
         self.ui.graphicsViewMapCanvas.setScene(scene)
 
+    def show_html_map_in_grid(self):
+        browser = QWebEngineView(self)
+        url = 'https://google.com'
+        file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "map.html"))
+        print(os.path.dirname(__file__))
+        browser.load(QUrl.fromLocalFile(file_path))
+        # self.ui.graphicsView.load(QUrl('map.html'))
+        self.ui.gridLayout.addWidget(browser, 0, 0, 1, 1)
+
     @pyqtSlot()
     def on_click(self):
         textbox_value_center = self.ui.lineEdit.text()
@@ -57,13 +70,13 @@ class MainWindow(QMainWindow):
         #     image_filepath_save = self.set_filename_save()[0]
         #     print(image_filepath_save)
         #     self.ui.lineEdit_save_image.setText(image_filepath_save)
-
         get_image(textbox_value_center, textbox_value_radius,
                   filepath=image_filepath_save)
         self.draw_image(image_filepath_save)
         # get_image(49.4750, 15.8611, 49.5005, 15.9178)
         html_map_filepath = 'map.html'
         show_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
+        self.show_html_map_in_grid()
         QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
                              QMessageBox.Ok,
                              QMessageBox.Ok)

@@ -23,10 +23,13 @@
    <string>Map drawer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>680</x>
+      <x>930</x>
       <y>10</y>
       <width>121</width>
       <height>23</height>
@@ -39,7 +42,7 @@
    <widget class="QLineEdit" name="lineEdit_2">
     <property name="geometry">
      <rect>
-      <x>680</x>
+      <x>930</x>
       <y>40</y>
       <width>121</width>
       <height>23</height>
@@ -49,7 +52,7 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>586</x>
+      <x>830</x>
       <y>10</y>
       <width>91</width>
       <height>20</height>
@@ -62,7 +65,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>586</x>
+      <x>830</x>
       <y>40</y>
       <width>91</width>
       <height>20</height>
@@ -75,7 +78,7 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>710</x>
+      <x>950</x>
       <y>70</y>
       <width>80</width>
       <height>23</height>
@@ -88,10 +91,10 @@
    <widget class="QGraphicsView" name="graphicsViewMapCanvas">
     <property name="geometry">
      <rect>
-      <x>15</x>
-      <y>11</y>
-      <width>561</width>
-      <height>541</height>
+      <x>830</x>
+      <y>110</y>
+      <width>221</width>
+      <height>231</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -100,6 +103,27 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>801</width>
+      <height>841</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
+     <property name="spacing">
+      <number>1</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QGraphicsView" name="graphicsView"/>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

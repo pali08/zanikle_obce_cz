@@ -39,11 +39,11 @@ lay.addWidget(browser, 0, 0, 2, 1)
 lay.addWidget(QTextEdit(), 0, 1)
 lay.addWidget(QTextEdit(), 1, 1)
 
-lay.setColumnStretch(0, 1)
-lay.setColumnStretch(1, 1)
-
-lay.setRowStretch(0, 1)
-lay.setRowStretch(1, 1)
+# lay.setColumnStretch(0, 1)
+# lay.setColumnStretch(1, 1)
+#
+# lay.setRowStretch(0, 1)
+# lay.setRowStretch(1, 1)
 
 w.show()
 
