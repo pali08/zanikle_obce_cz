@@ -5,7 +5,7 @@ from shutil import copyfile
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
-from circle_area_webpage import show_html_map_with_markers
+from circle_area_webpage import show_html_map_with_markers, show_html_map_with_markers_town
 from gui_map_drawer import Ui_MainWindow
 
 import sys
@@ -25,9 +25,9 @@ class MainWindow(QMainWindow):
 
         self.ui.gridLayout_html_map.setColumnStretch(0, 1)
         self.ui.gridLayout_html_map.setRowStretch(0, 1)
-        self.ui.pushButton.clicked.connect(self.on_click_draw)
+        self.ui.pushButton_draw_map_by_coordinates.clicked.connect(self.on_click_draw)
         self.ui.pushButton_save_map.clicked.connect(self.on_click_save_map)
-        # self.ui.pushButtonSetPath.clicked.connect(self.on_click_set_path)
+        self.ui.pushButton_draw_map_by_town.clicked.connect(self.on_click_draw_by_town)
         self.show()
 
     def set_filename_open(self):
@@ -64,19 +64,9 @@ class MainWindow(QMainWindow):
             textbox_value_center = self.ui.lineEdit_center.text()
             textbox_value_radius = float(self.ui.lineEdit_radius.text())
             image_filepath_save = os.path.join('temporary_files', 'map.png')
-            # image_filepath_save = self.ui.lineEdit_save_image.text()
-            # while not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(
-            #         image_filepath_save):
-            #     QMessageBox.question(self, 'Problem saving file',
-            #                          'Path not exists or file already exists. Pick another path', QMessageBox.Ok,
-            #                          QMessageBox.Ok)
-            #     image_filepath_save = self.set_filename_save()[0]
-            #     print(image_filepath_save)
-            #     self.ui.lineEdit_save_image.setText(image_filepath_save)
             get_image(textbox_value_center, textbox_value_radius,
                       filepath=image_filepath_save)
             self.draw_image(image_filepath_save)
-            # get_image(49.4750, 15.8611, 49.5005, 15.9178)
             html_map_filepath = os.path.join('temporary_files', 'map.html')
             show_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
             self.show_html_map_in_grid()
@@ -91,16 +81,16 @@ class MainWindow(QMainWindow):
                 "radius in kilometers as one number")
             msgBox.setWindowTitle("Warning: Incorrect format of input")
             msgBox.setStandardButtons(QMessageBox.Close)
-            # msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Close)
             msgBox.exec()
-            # msgBox.buttonClicked.connect(msgButtonClick)
 
-            # QMessageBox.Information(title='Warning', text='Unable to get center or radius. Check if format is correct')
-
-    # @pyqtSlot()
-    # def on_click_set_path(self):
-    #     QFileDialog.getSaveFileName()
-    #     self.ui.lineEdit_save_image.setText(self.set_filename_open())
+    @pyqtSlot()
+    def on_click_draw_by_town(self):
+        html_map_filepath = os.path.join('temporary_files', 'map.html')
+        show_html_map_with_markers_town(self.ui.lineEdit_town.text(), html_map_filepath)
+        self.show_html_map_in_grid()
+        QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
+                             QMessageBox.Ok,
+                             QMessageBox.Ok)
 
     @pyqtSlot()
     def on_click_save_map(self):

@@ -75,17 +75,17 @@
      <string>radius</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="pushButton_draw_map_by_coordinates">
     <property name="geometry">
      <rect>
-      <x>970</x>
+      <x>909</x>
       <y>100</y>
-      <width>80</width>
+      <width>141</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Draw map</string>
+     <string>by coordinates</string>
     </property>
    </widget>
    <widget class="QGraphicsView" name="graphicsView_png_map">
@@ -172,6 +172,45 @@
     </property>
     <property name="placeholderText">
      <string>path to save map</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_draw_map_by_town">
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>130</y>
+      <width>141</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>by town (only)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_draw_map_radius_around_town">
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>160</y>
+      <width>141</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>in radius around town</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_draw_map">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>100</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Draw map</string>
     </property>
    </widget>
   </widget>
