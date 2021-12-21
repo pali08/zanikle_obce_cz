@@ -26,7 +26,7 @@
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="lineEdit_center">
     <property name="geometry">
      <rect>
       <x>930</x>
@@ -39,7 +39,7 @@
      <string>latitude, longitude</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
+   <widget class="QLineEdit" name="lineEdit_radius">
     <property name="geometry">
      <rect>
       <x>930</x>
@@ -49,7 +49,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="label_center">
     <property name="geometry">
      <rect>
       <x>830</x>
@@ -62,7 +62,7 @@
      <string>center</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="label_radius">
     <property name="geometry">
      <rect>
       <x>830</x>
@@ -88,7 +88,7 @@
      <string>Draw map</string>
     </property>
    </widget>
-   <widget class="QGraphicsView" name="graphicsViewMapCanvas">
+   <widget class="QGraphicsView" name="graphicsView_png_map">
     <property name="geometry">
      <rect>
       <x>830</x>
@@ -113,7 +113,7 @@
       <height>841</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout">
+    <layout class="QGridLayout" name="gridLayout_html_map">
      <property name="sizeConstraint">
       <enum>QLayout::SetMaximumSize</enum>
      </property>
@@ -121,11 +121,11 @@
       <number>1</number>
      </property>
      <item row="0" column="0">
-      <widget class="QGraphicsView" name="graphicsView"/>
+      <widget class="QGraphicsView" name="graphicsView_html_map"/>
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="label_town">
     <property name="geometry">
      <rect>
       <x>830</x>

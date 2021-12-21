@@ -23,8 +23,8 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.ui.gridLayout.setColumnStretch(0, 1)
-        self.ui.gridLayout.setRowStretch(0, 1)
+        self.ui.gridLayout_html_map.setColumnStretch(0, 1)
+        self.ui.gridLayout_html_map.setRowStretch(0, 1)
         self.ui.pushButton.clicked.connect(self.on_click_draw)
         self.ui.pushButton_save_map.clicked.connect(self.on_click_save_map)
         # self.ui.pushButtonSetPath.clicked.connect(self.on_click_set_path)
@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         item = QGraphicsPixmapItem(pix)
         scene = QGraphicsScene(self)
         scene.addItem(item)
-        self.ui.graphicsViewMapCanvas.setScene(scene)
+        self.ui.graphicsView_png_map.setScene(scene)
 
     def show_html_map_in_grid(self):
         browser = QWebEngineView(self)
@@ -55,14 +55,14 @@ class MainWindow(QMainWindow):
         file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'temporary_files', "map.html"))
         print(os.path.dirname(__file__))
         browser.load(QUrl.fromLocalFile(file_path))
-        # self.ui.graphicsView.load(QUrl('map.html'))
-        self.ui.gridLayout.addWidget(browser, 0, 0, 1, 1)
+        # self.ui.graphicsView_html_map.load(QUrl('map.html'))
+        self.ui.gridLayout_html_map.addWidget(browser, 0, 0, 1, 1)
 
     @pyqtSlot()
     def on_click_draw(self):
         try:
-            textbox_value_center = self.ui.lineEdit.text()
-            textbox_value_radius = float(self.ui.lineEdit_2.text())
+            textbox_value_center = self.ui.lineEdit_center.text()
+            textbox_value_radius = float(self.ui.lineEdit_radius.text())
             image_filepath_save = os.path.join('temporary_files', 'map.png')
             # image_filepath_save = self.ui.lineEdit_save_image.text()
             # while not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(
