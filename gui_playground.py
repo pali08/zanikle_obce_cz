@@ -56,7 +56,7 @@ class MainWindow(QMainWindow):
         print(os.path.dirname(__file__))
         browser.load(QUrl.fromLocalFile(file_path))
         # self.ui.graphicsView_html_map.load(QUrl('map.html'))
-        self.ui.gridLayout_html_map.addWidget(browser, 0, 0, 1, 1)
+        self.ui.gridLayout_html_map.addWidget(browser, 6, 0, 1, 6)
 
     @pyqtSlot()
     def on_click_draw(self):
