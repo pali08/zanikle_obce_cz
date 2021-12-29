@@ -10,10 +10,9 @@ def get_soup(webpage_address):
 
 def get_basic_info(soup):
     table = soup.find('table').findNext('table').findAll('tr')[2].findAll('td')[0].findAll('div')[0]
-    basic_info_dict = {'name': None, 'category': None, 'municipality': None, 'district': None, 'end_reason': None,
-                       'end_years': None, 'actual_state': None}
-    category_found = False
-    basic_info_dict['name'] = table.find('big').find('b').find('a', href=True).contents[0].strip().replace('\'', '`')
+    basic_info_dict = {'name': table.find('big').find('b').find('a', href=True).contents[0].strip().replace('\'', '`'),
+                       'category': None, 'municipality': None, 'district': None, 'end_reason': None, 'end_years': None,
+                       'actual_state': None}
     for b in table.findAll('b'):
         for a in b.findAll('a', href=True):
             href_in_anchor = str(a['href'])

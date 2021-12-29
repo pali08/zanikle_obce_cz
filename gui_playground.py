@@ -1,20 +1,13 @@
 import os
+import sys
 from pathlib import Path
 from shutil import copyfile
 
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtCore import pyqtSlot, QUrl
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog
 
 from circle_area_webpage import show_html_map_with_markers, show_html_map_with_markers_town
 from gui_map_drawer import Ui_MainWindow
-
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox, QGraphicsPixmapItem, QGraphicsScene, \
-    QFileDialog, QTextEdit, QWidget, QGridLayout
-from PyQt5.QtCore import QFile, pyqtSlot, QUrl
-
-# from ui_mainwindow import Ui_MainWindow
-from circle_area import get_image
 
 
 class MainWindow(QMainWindow):
@@ -43,28 +36,18 @@ class MainWindow(QMainWindow):
             dialog.setDefaultSuffix('png')
             save_filter = 'Image Files (*.png *.jpg *.bmp)'
         if 'PYCHARM_HOSTED' in os.environ:
-            return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format), directory=str(Path.home()),
+            return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format),
+                                          directory=str(Path.home()),
                                           filter=save_filter,
                                           options=QFileDialog.DontUseNativeDialog)
         else:
-            return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format), directory=str(Path.home()),
+            return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format),
+                                          directory=str(Path.home()),
                                           filter=save_filter)
 
-    # def draw_image(self, image_path):
-    #     pix = QPixmap(image_path)
-    #     item = QGraphicsPixmapItem(pix)
-    #     scene = QGraphicsScene(self)
-    #     scene.addItem(item)
-    #     self.ui.graphicsView_png_map.setScene(scene)
-
     def show_html_map_in_grid(self):
-        # browser = QWebEngineView(self)
-        # url = 'https://google.com'
         file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'temporary_files', "map.html"))
-        print(os.path.dirname(__file__))
-        # browser.load(QUrl.fromLocalFile(file_path))
         self.ui.qWebEngineView_html_map.load(QUrl.fromLocalFile(file_path))
-        # self.ui.graphicsView_html_map.load(QUrl('map.html'))
         self.ui.gridLayout_html_map.addWidget(self.ui.qWebEngineView_html_map, 6, 0, 1, 6)
 
     @pyqtSlot()
@@ -72,10 +55,6 @@ class MainWindow(QMainWindow):
         try:
             textbox_value_center = self.ui.lineEdit_center.text()
             textbox_value_radius = float(self.ui.lineEdit_radius.text())
-            # image_filepath_save = os.path.join('temporary_files', 'map.png')
-            # get_image(textbox_value_center, textbox_value_radius,
-            #           filepath=image_filepath_save)
-            # self.draw_image(image_filepath_save)
             html_map_filepath = os.path.join('temporary_files', 'map.html')
             show_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
             self.show_html_map_in_grid()
@@ -101,7 +80,6 @@ class MainWindow(QMainWindow):
                              QMessageBox.Ok,
                              QMessageBox.Ok)
 
-    # @pyqtSlot()
     def on_click_save_map(self, save_format):
         image_filepath_save = self.ui.lineEdit_save_html.text()
         if not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(image_filepath_save):
@@ -121,7 +99,7 @@ class MainWindow(QMainWindow):
         except PermissionError:
             QMessageBox.warning(self, 'Permission problem', 'Permission problem - pick another path')
         except FileNotFoundError:
-            print('fnf')
+            pass
 
     @pyqtSlot()
     def on_click_save_map_img(self):
@@ -134,8 +112,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
     window = MainWindow()
     window.show()
-
     sys.exit(app.exec_())

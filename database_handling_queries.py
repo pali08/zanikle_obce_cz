@@ -32,9 +32,6 @@ def get_places_in_radius(specified_point, radius, db_connection):
     return rows
 
 
-# print(get_places_in_radius([49.19669, 16.60292], 20, sqlite3.connect(DB_FILE)))
-
-
 def get_places_by_municipality(municipality, db_connection):
     cursor = db_connection.cursor()
     cursor.execute('SELECT * FROM database_lost_places WHERE municipality=\'{}\''.format(municipality))

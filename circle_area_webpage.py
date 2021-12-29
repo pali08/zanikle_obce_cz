@@ -2,7 +2,7 @@ import sqlite3
 
 import folium
 from folium.map import Popup
-from IPython.display import HTML, display
+
 from database_handling_queries import get_places_in_radius, DB_FILE, get_places_by_municipality
 
 
@@ -20,7 +20,6 @@ def show_html_map_with_markers(center, radius, filepath):
     places = get_places_in_radius(center_list, radius, sqlite3.connect(DB_FILE))
     m = folium.Map(location=center_list)
     folium.CircleMarker(location=tuple(center_list), popup=Popup('Picasso', show=True)).add_to(m)
-    # print(places)
     add_places_to_map(m, filepath, places)
 
 
@@ -30,4 +29,3 @@ def show_html_map_with_markers_town(municipality, filepath):
     m = folium.Map(location=(places[0][-2], places[0][-1]))
     add_places_to_map(m, filepath, places)
 
-# show_html_map_with_markers('49.9,14.8', '20')

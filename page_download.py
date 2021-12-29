@@ -19,7 +19,6 @@ def soup_find_all_and_save(pagefolder, url, soup, tag2find='img', inner='src'):
             if not os.path.isfile(filepath):  # was not downloaded
                 with open(filepath, 'wb') as file:
                     filebin = session.get(fileurl)
-                    # filebin = requests.Session().get(fileurl)
                     file.write(filebin.content)
         except Exception as exc:
             print(exc, file=sys.stderr)
@@ -41,4 +40,3 @@ def save_page(response, pagefilename='page'):
     soup = get_page(response, pagefilename)
     with open(pagefilename + '.html', mode='w', encoding='utf-8') as file:
         file.write(soup.decode_contents(eventual_encoding='utf-8'))
-    # return soup
