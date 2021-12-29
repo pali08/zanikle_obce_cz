@@ -42,12 +42,12 @@ class MainWindow(QMainWindow):
             return QFileDialog.getSaveFileName(self, caption="Save Image", directory=str(Path.home()),
                                                filter="Html Files (*.html *.htm)")
 
-    def draw_image(self, image_path):
-        pix = QPixmap(image_path)
-        item = QGraphicsPixmapItem(pix)
-        scene = QGraphicsScene(self)
-        scene.addItem(item)
-        self.ui.graphicsView_png_map.setScene(scene)
+    # def draw_image(self, image_path):
+    #     pix = QPixmap(image_path)
+    #     item = QGraphicsPixmapItem(pix)
+    #     scene = QGraphicsScene(self)
+    #     scene.addItem(item)
+    #     self.ui.graphicsView_png_map.setScene(scene)
 
     def show_html_map_in_grid(self):
         # browser = QWebEngineView(self)
@@ -64,10 +64,10 @@ class MainWindow(QMainWindow):
         try:
             textbox_value_center = self.ui.lineEdit_center.text()
             textbox_value_radius = float(self.ui.lineEdit_radius.text())
-            image_filepath_save = os.path.join('temporary_files', 'map.png')
-            get_image(textbox_value_center, textbox_value_radius,
-                      filepath=image_filepath_save)
-            self.draw_image(image_filepath_save)
+            # image_filepath_save = os.path.join('temporary_files', 'map.png')
+            # get_image(textbox_value_center, textbox_value_radius,
+            #           filepath=image_filepath_save)
+            # self.draw_image(image_filepath_save)
             html_map_filepath = os.path.join('temporary_files', 'map.html')
             show_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
             self.show_html_map_in_grid()

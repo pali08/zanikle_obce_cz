@@ -27,16 +27,6 @@
     <bool>false</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="QGraphicsView" name="graphicsView_png_map">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout_html_map" rowstretch="0,0,0,0,0,0,10" columnstretch="0,10,0,0,10,0">
       <property name="sizeConstraint">
@@ -45,24 +35,20 @@
       <property name="spacing">
        <number>1</number>
       </property>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_center">
-        <property name="placeholderText">
-         <string>latitude, longitude</string>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="pushButton_draw_map_by_coordinates">
+        <property name="text">
+         <string>by coordinates</string>
         </property>
        </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="lineEdit_town"/>
       </item>
       <item row="1" column="3">
        <widget class="QPushButton" name="pushButton_draw_map_by_town">
         <property name="text">
          <string>by town (only)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_center">
-        <property name="text">
-         <string>center</string>
         </property>
        </widget>
       </item>
@@ -73,6 +59,13 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_center">
+        <property name="text">
+         <string>center</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="2">
        <widget class="QLabel" name="label_draw_map">
         <property name="text">
@@ -80,34 +73,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_radius">
-        <property name="text">
-         <string>radius</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_radius"/>
-      </item>
-      <item row="0" column="3">
-       <widget class="QPushButton" name="pushButton_draw_map_by_coordinates">
-        <property name="text">
-         <string>by coordinates</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QPushButton" name="pushButton_draw_map_radius_around_town">
-        <property name="text">
-         <string>radius around town</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="5">
        <widget class="QPushButton" name="pushButton_save_map">
         <property name="text">
-         <string>Save map</string>
+         <string>Save map as html</string>
         </property>
        </widget>
       </item>
@@ -118,11 +87,39 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="lineEdit_town"/>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="lineEdit_radius"/>
+      </item>
+      <item row="4" column="3">
+       <widget class="QPushButton" name="pushButton_draw_map_radius_around_town">
+        <property name="text">
+         <string>radius around town</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEdit_center">
+        <property name="placeholderText">
+         <string>latitude, longitude</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_radius">
+        <property name="text">
+         <string>radius</string>
+        </property>
+       </widget>
       </item>
       <item row="5" column="0" rowspan="2" colspan="6">
        <widget class="QWebEngineView" name="qWebEngineView_html_map" native="true"/>
+      </item>
+      <item row="1" column="5">
+       <widget class="QPushButton" name="pushButton_save_map_img">
+        <property name="text">
+         <string>Save map as image</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
