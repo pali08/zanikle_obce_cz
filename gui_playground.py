@@ -50,13 +50,14 @@ class MainWindow(QMainWindow):
         self.ui.graphicsView_png_map.setScene(scene)
 
     def show_html_map_in_grid(self):
-        browser = QWebEngineView(self)
-        url = 'https://google.com'
+        # browser = QWebEngineView(self)
+        # url = 'https://google.com'
         file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'temporary_files', "map.html"))
         print(os.path.dirname(__file__))
-        browser.load(QUrl.fromLocalFile(file_path))
+        # browser.load(QUrl.fromLocalFile(file_path))
+        self.ui.qWebEngineView_html_map.load(QUrl.fromLocalFile(file_path))
         # self.ui.graphicsView_html_map.load(QUrl('map.html'))
-        self.ui.gridLayout_html_map.addWidget(browser, 6, 0, 1, 6)
+        self.ui.gridLayout_html_map.addWidget(self.ui.qWebEngineView_html_map, 6, 0, 1, 6)
 
     @pyqtSlot()
     def on_click_draw(self):
@@ -101,6 +102,7 @@ class MainWindow(QMainWindow):
                                  QMessageBox.Ok)
             image_filepath_save = self.set_filename_save()[0]
             self.ui.lineEdit_save_html.setText(image_filepath_save)
+        self.ui.qWebEngineView_html_map.grab().save('temporary_files/map_png_test.png')
         try:
             copyfile(os.path.join('temporary_files', 'map.html'), image_filepath_save)
         except PermissionError:
