@@ -96,7 +96,7 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def on_click_save_map(self):
         image_filepath_save = self.ui.lineEdit_save_html.text()
-        while not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(image_filepath_save):
+        if not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(image_filepath_save):
             QMessageBox.question(self, 'Problem saving file',
                                  'Directory not exists or file already exists. Pick another path', QMessageBox.Ok,
                                  QMessageBox.Ok)
@@ -107,6 +107,8 @@ class MainWindow(QMainWindow):
             copyfile(os.path.join('temporary_files', 'map.html'), image_filepath_save)
         except PermissionError:
             QMessageBox.warning(self, 'Permission problem', 'Permission problem - pick another path')
+        except FileNotFoundError:
+            pass
 
 
 if __name__ == "__main__":
