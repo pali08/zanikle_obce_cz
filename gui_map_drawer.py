@@ -104,6 +104,6 @@ class Ui_MainWindow(object):
         self.pushButton_draw_map_radius_around_town.setText(_translate("MainWindow", "radius around town"))
         self.lineEdit_center.setPlaceholderText(_translate("MainWindow", "latitude, longitude"))
         self.label_radius.setText(_translate("MainWindow", "radius"))
-        self.pushButton_save_map_img.setText(_translate("MainWindow", "Save map as image"))
+        self.pushButton_save_map_img.setText(_translate("MainWindow", "Save map as png"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
 from PyQt5 import QtWebEngineWidgets

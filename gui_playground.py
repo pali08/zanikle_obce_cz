@@ -26,21 +26,29 @@ class MainWindow(QMainWindow):
         self.ui.gridLayout_html_map.setColumnStretch(0, 1)
         self.ui.gridLayout_html_map.setRowStretch(0, 1)
         self.ui.pushButton_draw_map_by_coordinates.clicked.connect(self.on_click_draw)
-        self.ui.pushButton_save_map.clicked.connect(self.on_click_save_map)
+        self.ui.pushButton_save_map.clicked.connect(self.on_click_save_map_html)
+        self.ui.pushButton_save_map_img.clicked.connect(self.on_click_save_map_img)
         self.ui.pushButton_draw_map_by_town.clicked.connect(self.on_click_draw_by_town)
         self.show()
 
     def set_filename_open(self):
         return QFileDialog.getOpenFileName(self, "Open Image", str(Path.home()), "Image Files (*.png *.jpg *.bmp)")
 
-    def set_filename_save(self):
+    def set_filename_save(self, save_format):
+        dialog = QFileDialog()
+        if save_format == 'html':
+            dialog.setDefaultSuffix('html')
+            save_filter = 'Html Files (*.html *.htm)'
+        elif save_format == 'png':
+            dialog.setDefaultSuffix('png')
+            save_filter = 'Image Files (*.png *.jpg *.bmp)'
         if 'PYCHARM_HOSTED' in os.environ:
-            return QFileDialog.getSaveFileName(self, caption="Save Image", directory=str(Path.home()),
-                                               filter="Html Files (*.html *.htm)",
-                                               options=QFileDialog.DontUseNativeDialog)
+            return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format), directory=str(Path.home()),
+                                          filter=save_filter,
+                                          options=QFileDialog.DontUseNativeDialog)
         else:
-            return QFileDialog.getSaveFileName(self, caption="Save Image", directory=str(Path.home()),
-                                               filter="Html Files (*.html *.htm)")
+            return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format), directory=str(Path.home()),
+                                          filter=save_filter)
 
     # def draw_image(self, image_path):
     #     pix = QPixmap(image_path)
@@ -93,22 +101,35 @@ class MainWindow(QMainWindow):
                              QMessageBox.Ok,
                              QMessageBox.Ok)
 
-    @pyqtSlot()
-    def on_click_save_map(self):
+    # @pyqtSlot()
+    def on_click_save_map(self, save_format):
         image_filepath_save = self.ui.lineEdit_save_html.text()
         if not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(image_filepath_save):
             QMessageBox.question(self, 'Problem saving file',
                                  'Directory not exists or file already exists. Pick another path', QMessageBox.Ok,
                                  QMessageBox.Ok)
-            image_filepath_save = self.set_filename_save()[0]
+            image_filepath_save = self.set_filename_save(save_format)[0]
             self.ui.lineEdit_save_html.setText(image_filepath_save)
-        self.ui.qWebEngineView_html_map.grab().save('temporary_files/map_png_test.png')
         try:
-            copyfile(os.path.join('temporary_files', 'map.html'), image_filepath_save)
+            if save_format == 'png':
+                self.ui.qWebEngineView_html_map.grab().save(image_filepath_save)
+            elif save_format == 'html':
+                copyfile(os.path.join('temporary_files', 'map.html'), image_filepath_save)
+            else:
+                print('on_click_save_map_function - format must be img or html')
+                return
         except PermissionError:
             QMessageBox.warning(self, 'Permission problem', 'Permission problem - pick another path')
         except FileNotFoundError:
-            pass
+            print('fnf')
+
+    @pyqtSlot()
+    def on_click_save_map_img(self):
+        self.on_click_save_map('png')
+
+    @pyqtSlot()
+    def on_click_save_map_html(self):
+        self.on_click_save_map('html')
 
 
 if __name__ == "__main__":
