@@ -26,6 +26,7 @@ def show_html_map_with_markers(center, radius, filepath):
 def show_html_map_with_markers_town(municipality, filepath):
     places = get_places_by_municipality(municipality, sqlite3.connect(DB_FILE))
     # we will add first places, otherwise initial map is un-zoomed
-    m = folium.Map(location=(places[0][-2], places[0][-1]))
-    add_places_to_map(m, filepath, places)
+    if len(places) >= 1:
+        m = folium.Map(location=(places[0][-2], places[0][-1]))
+        add_places_to_map(m, filepath, places)
 
