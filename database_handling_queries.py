@@ -34,7 +34,7 @@ def get_places_in_radius(specified_point, radius, db_connection):
 
 def get_places_by_municipality(municipality, db_connection):
     cursor = db_connection.cursor()
-    cursor.execute('SELECT * FROM database_lost_places WHERE municipality=\'{}\''.format(municipality))
+    cursor.execute('SELECT * FROM database_lost_places WHERE lower(municipality)=lower(\'{}\')'.format(municipality))
     rows = cursor.fetchall()
     db_connection.close()
     return rows
