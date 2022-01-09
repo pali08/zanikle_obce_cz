@@ -50,13 +50,21 @@ class MainWindow(QMainWindow):
         self.ui.qWebEngineView_html_map.load(QUrl.fromLocalFile(file_path))
         self.ui.gridLayout_html_map.addWidget(self.ui.qWebEngineView_html_map, 6, 0, 1, 6)
 
+    def print_places_into_text_browser(self, places):
+        for place in places:
+            for item in place:
+                self.ui.textBrowser_places_info.append(str(item))
+            self.ui.textBrowser_places_info.append(20*'-')
+
+
     @pyqtSlot()
     def on_click_draw(self):
         try:
             textbox_value_center = self.ui.lineEdit_center.text()
             textbox_value_radius = float(self.ui.lineEdit_radius.text())
             html_map_filepath = os.path.join('temporary_files', 'map.html')
-            show_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
+            places = show_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
+            self.print_places_into_text_browser(places)
             self.show_html_map_in_grid()
             QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
                                  QMessageBox.Ok,
@@ -70,15 +78,6 @@ class MainWindow(QMainWindow):
             msgBox.setWindowTitle("Warning: Incorrect format of input")
             msgBox.setStandardButtons(QMessageBox.Close)
             msgBox.exec()
-
-    @pyqtSlot()
-    def on_click_draw_by_town(self):
-        html_map_filepath = os.path.join('temporary_files', 'map.html')
-        show_html_map_with_markers_town(self.ui.lineEdit_town.text(), html_map_filepath)
-        self.show_html_map_in_grid()
-        QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
-                             QMessageBox.Ok,
-                             QMessageBox.Ok)
 
     def on_click_save_map(self, save_format):
         image_filepath_save = self.ui.lineEdit_save_html.text()
@@ -108,6 +107,17 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def on_click_save_map_html(self):
         self.on_click_save_map('html')
+
+
+    @pyqtSlot()
+    def on_click_draw_by_town(self):
+        html_map_filepath = os.path.join('temporary_files', 'map.html')
+        places = show_html_map_with_markers_town(self.ui.lineEdit_town.text(), html_map_filepath)
+        self.print_places_into_text_browser(places)
+        self.show_html_map_in_grid()
+        QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
+                             QMessageBox.Ok,
+                             QMessageBox.Ok)
 
 
 if __name__ == "__main__":

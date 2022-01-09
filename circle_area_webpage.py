@@ -21,6 +21,7 @@ def show_html_map_with_markers(center, radius, filepath):
     m = folium.Map(location=center_list)
     folium.CircleMarker(location=tuple(center_list), popup=Popup('Picasso', show=True)).add_to(m)
     add_places_to_map(m, filepath, places)
+    return places
 
 
 def show_html_map_with_markers_town(municipality, filepath):
@@ -29,4 +30,5 @@ def show_html_map_with_markers_town(municipality, filepath):
     if len(places) >= 1:
         m = folium.Map(location=(places[0][-2], places[0][-1]))
         add_places_to_map(m, filepath, places)
+    return places
 

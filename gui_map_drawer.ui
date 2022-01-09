@@ -26,7 +26,7 @@
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="gridLayout" columnstretch="15,5">
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout_html_map" rowstretch="0,0,0,0,0,0,10" columnstretch="0,10,0,0,10,0">
       <property name="sizeConstraint">
@@ -120,6 +120,13 @@
          <string>Save map as png</string>
         </property>
        </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QTextBrowser" name="textBrowser_places_info"/>
       </item>
      </layout>
     </item>
