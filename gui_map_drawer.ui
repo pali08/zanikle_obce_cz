@@ -27,7 +27,14 @@
     <bool>false</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout" columnstretch="15,5">
-    <item row="0" column="0">
+    <item row="1" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QTextBrowser" name="textBrowser_places_info"/>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
      <layout class="QGridLayout" name="gridLayout_html_map" rowstretch="0,0,0,0,0,0,10" columnstretch="0,10,0,0,10,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetMaximumSize</enum>
@@ -62,7 +69,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_center">
         <property name="text">
-         <string>center</string>
+         <string>Center</string>
         </property>
        </widget>
       </item>
@@ -107,7 +114,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_radius">
         <property name="text">
-         <string>radius</string>
+         <string>Radius</string>
         </property>
        </widget>
       </item>
@@ -121,12 +128,12 @@
         </property>
        </widget>
       </item>
-     </layout>
-    </item>
-    <item row="0" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QTextBrowser" name="textBrowser_places_info"/>
+      <item row="4" column="5">
+       <widget class="QPushButton" name="pushButton_update_db">
+        <property name="text">
+         <string>Update database</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
