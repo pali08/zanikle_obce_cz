@@ -6,6 +6,7 @@ import sys
 import traceback
 from shutil import copyfile, move
 
+import overpy
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -17,6 +18,14 @@ from page_download import save_page
 
 url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1'
 url_main = 'http://www.zanikleobce.cz/'
+
+# way to get bounding box:
+# czechia_json = requests.get('https://nominatim.openstreetmap.org/search', params={'q':'czechia', 'format':'json'}).json()[0]['boundingbox']
+# WESTEST_POINT = czechia_json[2]
+# EASTEST_POINT = czechia_json[3]
+# NORTHEST_POINT = czechia_json[1]
+# SOUTHEST_POINT = czechia_json[0]
+
 WESTEST_POINT = 12.09139
 EASTEST_POINT = 18.85889
 NORTHEST_POINT = 51.05556
@@ -62,7 +71,8 @@ def get_number_of_pages():
                 'follows: ' + str(
                     attr_error))
         except Exception as any_exception:
-            print('While getting number of pages, unexpected exception occurred:\n' + str(any_exception) + '\nstack trace follows')
+            print('While getting number of pages, unexpected exception occurred:\n' + str(
+                any_exception) + '\nstack trace follows')
             print(traceback.format_exc())
     return highest_page
 
@@ -163,9 +173,19 @@ def get_database_of_lost_places_pages(path, is_test=False):
     print('Backup of lost places pages was finished (probably) successfully.')
 
 
-if len(sys.argv) == 1:
-    get_database_of_lost_places_sqlitedb()
-elif len(sys.argv) == 2:
-    get_database_of_lost_places_pages(sys.argv[1])
-else:
-    print('0 arguments or 1 argument required - path, where to save database of lost places')
+def get_center_town_coordinates():
+    czechia_bbox = [SOUTHEST_POINT, WESTEST_POINT, NORTHEST_POINT, EASTEST_POINT]
+    api = overpy.Overpass()
+    result = api.query(
+        'node["place"~"town|city|village|municipality"](' + str(SOUTHEST_POINT) + ',' + str(WESTEST_POINT) + ',' + str(
+            NORTHEST_POINT) + ',' + str(EASTEST_POINT) + ');out;')
+    # todo: these 3 values are not to be printed, but added to DB
+    for i in result.nodes:
+        print(str(i.lat) + str(i.lon) + i.tags['name'])
+
+# if len(sys.argv) == 1:
+#     get_database_of_lost_places_sqlitedb()
+# elif len(sys.argv) == 2:
+#     get_database_of_lost_places_pages(sys.argv[1])
+# else:
+#     print('0 arguments or 1 argument required - path, where to save database of lost places')
