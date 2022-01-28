@@ -106,6 +106,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Map drawer"))
         self.pushButton_draw_map_by_coordinates.setText(_translate("MainWindow", "by coordinates"))
+        self.lineEdit_town.setPlaceholderText(_translate("MainWindow", "town, district"))
         self.pushButton_draw_map_by_town.setText(_translate("MainWindow", "by town (only)"))
         self.lineEdit_save_html.setPlaceholderText(_translate("MainWindow", "path to save map"))
         self.label_center.setText(_translate("MainWindow", "Center"))

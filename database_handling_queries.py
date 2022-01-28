@@ -34,7 +34,18 @@ def get_places_in_radius(specified_point, radius, db_connection):
 
 def get_places_by_municipality(municipality, db_connection):
     cursor = db_connection.cursor()
-    cursor.execute('SELECT * FROM database_lost_places WHERE lower(municipality)=lower(\'{}\')'.format(municipality))
+    if ',' in municipality:
+        print('this branch is executed')
+        town, district = municipality.split(',')
+        town = town.strip()
+        district = district.strip()
+        cursor.execute(
+            'SELECT * FROM database_lost_places WHERE lower(municipality)=lower(\'{}\') and lower(district) = lower(\'{}\')'.format(
+                town, district))
+    else:
+        cursor.execute(
+            'SELECT * FROM database_lost_places WHERE lower(municipality)=lower(\'{}\')'.format(
+                municipality))
     rows = cursor.fetchall()
     db_connection.close()
     return rows
