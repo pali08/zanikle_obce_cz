@@ -1,9 +1,11 @@
+import csv
 import os.path
 import pickle
 import shutil
 import sqlite3
 import sys
 import traceback
+from io import StringIO
 from shutil import copyfile, move
 
 import overpy
@@ -77,7 +79,7 @@ def get_number_of_pages():
     return highest_page
 
 
-def get_database_of_lost_places_sqlitedb():
+def get_table_of_lost_places_sqlitedb():
     if not connection_is_ok():
         return
     backup_db()
@@ -142,7 +144,7 @@ def get_database_of_lost_places_sqlitedb():
           'please replace database.db with database.db_bck')
 
 
-def get_database_of_lost_places_pages(path, is_test=False):
+def get_table_of_lost_places_pages(path, is_test=False):
     if not connection_is_ok():
         return
     if is_test:
@@ -174,14 +176,71 @@ def get_database_of_lost_places_pages(path, is_test=False):
 
 
 def get_center_town_coordinates():
-    czechia_bbox = [SOUTHEST_POINT, WESTEST_POINT, NORTHEST_POINT, EASTEST_POINT]
-    api = overpy.Overpass()
-    result = api.query(
-        'node["place"~"town|city|village|municipality"](' + str(SOUTHEST_POINT) + ',' + str(WESTEST_POINT) + ',' + str(
-            NORTHEST_POINT) + ',' + str(EASTEST_POINT) + ');out;')
-    # todo: these 3 values are not to be printed, but added to DB
-    for i in result.nodes:
-        print(str(i.lat) + str(i.lon) + i.tags['name'])
+    csv_towns = requests.get('https://raw.githubusercontent.com/33bcdd/souradnice-mest/master/souradnice.csv').text
+    con = sqlite3.connect(os.path.join('.', 'database.db'))
+    cur = con.cursor()
+    cur.execute('''DROP TABLE towns_with_coordinates''')
+    cur.execute('''CREATE TABLE towns_with_coordinates
+    (town text,
+    code text,
+    district text,
+    district_code text,
+    region text,
+    region_code text,
+    postal_code text,
+    north real,
+    east real)''')
+    csv_file_handle = StringIO(csv_towns)
+    csv_towns_reader = csv.reader(csv_file_handle, delimiter=',')
+    next(csv_towns_reader) # remove first line
+    for row in csv_towns_reader:
+        # print(i.tags)
+        # print(str(i.lat) + str(i.lon) + i.tags['name'])
+        # print(row)
+        try:
+            cur.execute(
+                "insert into towns_with_coordinates(town,code,district,district_code,region,"
+                "region_code,postal_code,north,east)"
+                "values (\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',{}, {})".format(*row))
+        except sqlite3.OperationalError:
+            print('sqlite3.operational error on {}, stacktrace folows:'.format(
+                str(row)))
+            print(traceback.format_exc())
+    cur.execute("CREATE INDEX towns ON towns_with_coordinates (town);")
+    con.commit()
+    con.close()
+
+#getting town coordinates from overpass
+# def get_center_town_coordinates():
+#     czechia_bbox = [SOUTHEST_POINT, WESTEST_POINT, NORTHEST_POINT, EASTEST_POINT]
+#     api = overpy.Overpass()
+#     result = api.query(
+#         'node["place"~"town|city|village|municipality"](' + str(SOUTHEST_POINT) + ',' +
+#         str(WESTEST_POINT) + ',' + str(
+#             NORTHEST_POINT) + ',' + str(EASTEST_POINT) + ');out;')
+#     # todo: these 3 values are not to be printed, but added to DB
+#
+#     con = sqlite3.connect(os.path.join('.', 'database.db'))
+#     cur = con.cursor()
+#     cur.execute('''DROP TABLE towns_with_coordinates''')
+#     cur.execute('''CREATE TABLE towns_with_coordinates
+#     (town text,
+#     north real,
+#     east real)''')
+#     for i in result.nodes:
+#         # print(i.tags)
+#         # print(str(i.lat) + str(i.lon) + i.tags['name'])
+#         try:
+#             cur.execute(
+#                 "insert into towns_with_coordinates(town, north, east) "
+#                 "values (\'{}\', {}, {})".format(i.tags['name'], str(i.lat), str(i.lon)))
+#         except sqlite3.OperationalError:
+#             print('sqlite3.operational error on {}, stacktrace folows:'.format(
+#                 i.tags['name']))
+#             print(traceback.format_exc())
+#     cur.execute("CREATE INDEX towns ON towns_with_coordinates (town);")
+#     con.commit()
+#     con.close()
 
 # if len(sys.argv) == 1:
 #     get_database_of_lost_places_sqlitedb()

@@ -7,7 +7,7 @@ from PyQt5.QtCore import pyqtSlot, QUrl
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog
 
 from circle_area_webpage import show_html_map_with_markers, show_html_map_with_markers_town
-from get_actual_db import get_database_of_lost_places_sqlitedb
+from get_actual_db import get_table_of_lost_places_sqlitedb
 from gui_map_drawer import Ui_MainWindow
 
 
@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
         reply = QMessageBox.question(self, 'Confirmation', 'Update database?',
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
-            get_database_of_lost_places_sqlitedb()
+            get_table_of_lost_places_sqlitedb()
 
 
 if __name__ == "__main__":
