@@ -6,8 +6,9 @@ from shutil import copyfile
 from PyQt5.QtCore import pyqtSlot, QUrl
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog
 
-from circle_area_webpage import show_html_map_with_markers, show_html_map_with_markers_town
-from get_actual_db import get_table_of_lost_places_sqlitedb
+from circle_area_webpage import show_html_map_with_markers, show_html_map_with_markers_town, \
+    show_html_map_with_markers_town_and_radius
+from get_actual_db import get_table_of_lost_places_sqlitedb, get_center_town_coordinates
 from gui_map_drawer import Ui_MainWindow
 
 
@@ -16,7 +17,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
+        self.html_map_filepath = os.path.join('temporary_files', 'map.html')
         self.ui.gridLayout_html_map.setColumnStretch(0, 1)
         self.ui.gridLayout_html_map.setRowStretch(0, 1)
         self.ui.pushButton_draw_map_by_coordinates.clicked.connect(self.on_click_draw)
@@ -24,6 +25,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_save_map_img.clicked.connect(self.on_click_save_map_img)
         self.ui.pushButton_draw_map_by_town.clicked.connect(self.on_click_draw_by_town)
         self.ui.pushButton_update_db.clicked.connect(self.on_click_update_db)
+        self.ui.pushButton_draw_map_radius_around_town.clicked.connect(self.on_click_draw_by_radius_around_town)
         self.show()
 
     def set_filename_open(self):
@@ -111,19 +113,27 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_click_draw_by_town(self):
-        html_map_filepath = os.path.join('temporary_files', 'map.html')
-        places = show_html_map_with_markers_town(self.ui.lineEdit_town.text(), html_map_filepath)
+        # html_map_filepath = os.path.join('temporary_files', 'map.html')
+        places = show_html_map_with_markers_town(self.ui.lineEdit_town.text(), self.html_map_filepath)
         self.print_places_into_text_browser(places)
         self.show_html_map_in_grid()
-        QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
+        QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + self.html_map_filepath,
                              QMessageBox.Ok,
                              QMessageBox.Ok)
+
+    @pyqtSlot()
+    def on_click_draw_by_radius_around_town(self):
+        places = show_html_map_with_markers_town_and_radius(self.ui.lineEdit_town.text(), self.ui.lineEdit_radius.text(),
+                                                            self.html_map_filepath)
+        self.print_places_into_text_browser(places)
+        self.show_html_map_in_grid()
 
     def on_click_update_db(self):
         reply = QMessageBox.question(self, 'Confirmation', 'Update database?',
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             get_table_of_lost_places_sqlitedb()
+            get_center_town_coordinates()
 
 
 if __name__ == "__main__":

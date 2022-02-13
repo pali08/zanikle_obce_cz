@@ -3,7 +3,8 @@ import sqlite3
 import folium
 from folium.map import Popup
 
-from database_handling_queries import get_places_in_radius, DB_FILE, get_places_by_municipality
+from database_handling_queries import get_places_in_radius, DB_FILE, get_places_by_municipality, \
+    get_places_in_radius_around_municipality
 
 
 def add_places_to_map(map, filepath, places):
@@ -24,6 +25,14 @@ def show_html_map_with_markers(center, radius, filepath):
     return places
 
 
+def show_html_map_with_markers_town_and_radius(town, radius, filepath):
+    places = get_places_in_radius_around_municipality(town, radius, sqlite3.connect(DB_FILE))
+    m = folium.Map(location=(places[0][-2], places[0][-1]))
+    folium.CircleMarker(location=(places[0][-2], places[0][-1]), popup=Popup('Picasso', show=True)).add_to(m)
+    add_places_to_map(m, filepath, places)
+    return places
+
+
 def show_html_map_with_markers_town(municipality, filepath):
     places = get_places_by_municipality(municipality, sqlite3.connect(DB_FILE))
     # we will add first places, otherwise initial map is un-zoomed
@@ -31,4 +40,3 @@ def show_html_map_with_markers_town(municipality, filepath):
         m = folium.Map(location=(places[0][-2], places[0][-1]))
         add_places_to_map(m, filepath, places)
     return places
-
