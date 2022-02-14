@@ -16,7 +16,7 @@ def add_places_to_map(map, filepath, places):
     # display(map)
 
 
-def show_html_map_with_markers(center, radius, filepath):
+def get_html_map_with_markers(center, radius, filepath):
     center_list = [float(i.strip()) for i in center.split(',')]
     places = get_places_in_radius(center_list, radius, sqlite3.connect(DB_FILE))
     m = folium.Map(location=center_list)
@@ -25,7 +25,7 @@ def show_html_map_with_markers(center, radius, filepath):
     return places
 
 
-def show_html_map_with_markers_town_and_radius(town, radius, filepath):
+def get_html_map_with_markers_town_and_radius(town, radius, filepath):
     places = get_places_in_radius_around_municipality(town, radius, sqlite3.connect(DB_FILE))
     m = folium.Map(location=(places[0][-2], places[0][-1]))
     folium.CircleMarker(location=(places[0][-2], places[0][-1]), popup=Popup('Picasso', show=True)).add_to(m)
@@ -33,7 +33,7 @@ def show_html_map_with_markers_town_and_radius(town, radius, filepath):
     return places
 
 
-def show_html_map_with_markers_town(municipality, filepath):
+def get_html_map_with_markers_town(municipality, filepath):
     places = get_places_by_municipality(municipality, sqlite3.connect(DB_FILE))
     # we will add first places, otherwise initial map is un-zoomed
     if len(places) >= 1:

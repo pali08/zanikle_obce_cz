@@ -6,8 +6,8 @@ from shutil import copyfile
 from PyQt5.QtCore import pyqtSlot, QUrl
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog
 
-from circle_area_webpage import show_html_map_with_markers, show_html_map_with_markers_town, \
-    show_html_map_with_markers_town_and_radius
+from circle_area_webpage import get_html_map_with_markers, get_html_map_with_markers_town, \
+    get_html_map_with_markers_town_and_radius
 from get_actual_db import get_table_of_lost_places_sqlitedb, get_center_town_coordinates
 from gui_map_drawer import Ui_MainWindow
 
@@ -66,7 +66,7 @@ class MainWindow(QMainWindow):
             textbox_value_center = self.ui.lineEdit_center.text()
             textbox_value_radius = float(self.ui.lineEdit_radius.text())
             html_map_filepath = os.path.join('temporary_files', 'map.html')
-            places = show_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
+            places = get_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
             self.print_places_into_text_browser(places)
             self.show_html_map_in_grid()
             QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def on_click_draw_by_town(self):
         # html_map_filepath = os.path.join('temporary_files', 'map.html')
-        places = show_html_map_with_markers_town(self.ui.lineEdit_town.text(), self.html_map_filepath)
+        places = get_html_map_with_markers_town(self.ui.lineEdit_town.text(), self.html_map_filepath)
         self.print_places_into_text_browser(places)
         self.show_html_map_in_grid()
         QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + self.html_map_filepath,
@@ -123,8 +123,8 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_click_draw_by_radius_around_town(self):
-        places = show_html_map_with_markers_town_and_radius(self.ui.lineEdit_town.text(), self.ui.lineEdit_radius.text(),
-                                                            self.html_map_filepath)
+        places = get_html_map_with_markers_town_and_radius(self.ui.lineEdit_town.text(), self.ui.lineEdit_radius.text(),
+                                                           self.html_map_filepath)
         self.print_places_into_text_browser(places)
         self.show_html_map_in_grid()
 
