@@ -12,6 +12,18 @@ from get_actual_db import get_table_of_lost_places_sqlitedb, get_center_town_coo
 from gui_map_drawer import Ui_MainWindow
 
 
+def input_number_correct(count_of_numbers, input):
+    if len(input.split(',')) == count_of_numbers:
+        for i in input.split(','):
+            try:
+                float(i)
+            except ValueError:
+                return False
+        return True
+    else:
+        return False
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -62,25 +74,29 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_click_draw(self):
-        try:
-            textbox_value_center = self.ui.lineEdit_center.text()
-            textbox_value_radius = float(self.ui.lineEdit_radius.text())
-            html_map_filepath = os.path.join('temporary_files', 'map.html')
-            places = get_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
-            self.print_places_into_text_browser(places)
-            self.show_html_map_in_grid()
-            QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
-                                 QMessageBox.Ok,
-                                 QMessageBox.Ok)
-        except ValueError:
-            msgBox = QMessageBox()
-            msgBox.setIcon(QMessageBox.Information)
-            msgBox.setText(
-                "Input format of center or randius is incorrect. Set center as two numbers splitted by comma and "
-                "radius in kilometers as one number")
-            msgBox.setWindowTitle("Warning: Incorrect format of input")
-            msgBox.setStandardButtons(QMessageBox.Close)
-            msgBox.exec()
+        if not (input_number_correct(2, self.ui.lineEdit_center.text())
+                and input_number_correct(1, self.ui.lineEdit_radius.text())):
+            QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius or center', QMessageBox.Close,
+                                QMessageBox.Close)
+            return
+        textbox_value_center = self.ui.lineEdit_center.text()
+        textbox_value_radius = float(self.ui.lineEdit_radius.text())
+        html_map_filepath = os.path.join('temporary_files', 'map.html')
+        places = get_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
+        self.print_places_into_text_browser(places)
+        self.show_html_map_in_grid()
+        QMessageBox.question(self, 'File save', 'Map in html page format was saved to ' + html_map_filepath,
+                             QMessageBox.Ok,
+                             QMessageBox.Ok)
+        # except ValueError:
+        #     msgBox = QMessageBox()
+        #     msgBox.setIcon(QMessageBox.Information)
+        #     msgBox.setText(
+        #         "Input format of center or randius is incorrect. Set center as two numbers splitted by comma and "
+        #         "radius in kilometers as one number")
+        #     msgBox.setWindowTitle("Warning: Incorrect format of input")
+        #     msgBox.setStandardButtons(QMessageBox.Close)
+        #     msgBox.exec()
 
     def on_click_save_map(self, save_format):
         image_filepath_save = self.ui.lineEdit_save_html.text()
@@ -123,6 +139,10 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_click_draw_by_radius_around_town(self):
+        if not input_number_correct(1, self.ui.lineEdit_radius.text()):
+            QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius', QMessageBox.Close,
+                                QMessageBox.Close)
+            return
         places = get_html_map_with_markers_town_and_radius(self.ui.lineEdit_town.text(), self.ui.lineEdit_radius.text(),
                                                            self.html_map_filepath)
         self.print_places_into_text_browser(places)
