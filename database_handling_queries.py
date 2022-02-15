@@ -18,7 +18,7 @@ def get_distance(latitude_specified_point, longitude_specified_point, latitude_p
                                     longitude_place]).km
 
 
-def get_places_in_radius(specified_point, radius, db_connection):
+def get_places_in_radius(specified_point, radius, db_connection, close_connection=True):
     specified_point_latitude = str(specified_point[0])
     specified_point_longitude = str(specified_point[1])
     db_connection.create_function('getdistance', 4, get_distance)
@@ -28,7 +28,8 @@ def get_places_in_radius(specified_point, radius, db_connection):
         'east is not null'.format(
             str(specified_point_latitude), str(specified_point_longitude), str(radius)))
     rows = cursor.fetchall()
-    db_connection.close()
+    if close_connection:
+        db_connection.close()
     return rows
 
 
@@ -59,21 +60,21 @@ def get_places_by_municipality(municipality, db_connection):
 
 def get_places_in_radius_around_municipality(municipality, radius, db_connection):
     cursor = db_connection.cursor()
-    town, district = get_municipality_and_district(municipality)
-    print(town)
-    print(district)
-    print('SELECT NORTH,EAST FROM towns_with_coordinates WHERE lower(town)=lower(\'{}\') AND lower(district)=lower('
-          '\'{}\')'.format(
-        town, district))
-    cursor.execute(
-        'SELECT NORTH,EAST FROM towns_with_coordinates WHERE lower(town)=lower(\'{}\') AND lower(district)=lower('
-        '\'{}\')'.format(
-            town, district))
+    if ',' in municipality:
+        town, district = get_municipality_and_district(municipality)
+        cursor.execute(
+            'SELECT NORTH,EAST FROM towns_with_coordinates WHERE lower(town)=lower(\'{}\') AND lower(district)=lower('
+            '\'{}\')'.format(
+                town, district))
+    else:
+        cursor.execute(
+            'SELECT NORTH,EAST FROM towns_with_coordinates WHERE lower(town)=lower(\'{}\')'.format(
+                municipality))
     municipality_coordinates = cursor.fetchall()
-    print(municipality_coordinates)
     result = []
     # previus execution, should have only one pair (one city and district, but to be sure, that program does not crash,
     # if more places are there)
     for coordinate_pair in municipality_coordinates:
-        result += get_places_in_radius(coordinate_pair, radius, db_connection)
+        result += get_places_in_radius(coordinate_pair, radius, db_connection, close_connection=False)
+    db_connection.close()
     return result
