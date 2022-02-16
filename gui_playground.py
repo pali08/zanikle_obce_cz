@@ -101,6 +101,13 @@ class MainWindow(QMainWindow):
     def on_click_save_map_html(self):
         self.on_click_save_map('html')
 
+    def places_empty(self, places):
+        if not places:
+            QMessageBox.warning(self, 'Nothing found.', 'For given input no abandoned place was found',
+                                QMessageBox.Close,
+                                QMessageBox.Close)
+            return True
+
     @pyqtSlot()
     def on_click_draw(self):
         if not (input_number_correct(2, self.ui.lineEdit_center.text())
@@ -112,6 +119,8 @@ class MainWindow(QMainWindow):
         textbox_value_radius = float(self.ui.lineEdit_radius.text())
         html_map_filepath = os.path.join('temporary_files', 'map.html')
         places = get_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
+        if self.places_empty(places):
+            return
         self.print_places_into_text_browser(places)
         self.show_html_map_in_grid()
 
@@ -119,6 +128,8 @@ class MainWindow(QMainWindow):
     def on_click_draw_by_town(self):
         # html_map_filepath = os.path.join('temporary_files', 'map.html')
         places = get_html_map_with_markers_town(self.ui.lineEdit_town.text(), self.html_map_filepath)
+        if self.places_empty(places):
+            return
         self.print_places_into_text_browser(places)
         self.show_html_map_in_grid()
 
@@ -130,6 +141,8 @@ class MainWindow(QMainWindow):
             return
         places = get_html_map_with_markers_town_and_radius(self.ui.lineEdit_town.text(), self.ui.lineEdit_radius.text(),
                                                            self.html_map_filepath)
+        if self.places_empty(places):
+            return
         self.print_places_into_text_browser(places)
         self.show_html_map_in_grid()
 
