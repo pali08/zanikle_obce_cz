@@ -108,8 +108,10 @@ class MainWindow(QMainWindow):
                                 QMessageBox.Close)
             return True
 
+
     @pyqtSlot()
     def on_click_draw(self):
+        self.ui.textBrowser_places_info.clear()
         if not (input_number_correct(2, self.ui.lineEdit_center.text())
                 and input_number_correct(1, self.ui.lineEdit_radius.text())):
             QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius or center', QMessageBox.Close,
@@ -126,6 +128,7 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_click_draw_by_town(self):
+        self.ui.textBrowser_places_info.clear()
         # html_map_filepath = os.path.join('temporary_files', 'map.html')
         places = get_html_map_with_markers_town(self.ui.lineEdit_town.text(), self.html_map_filepath)
         if self.places_empty(places):
@@ -135,6 +138,7 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_click_draw_by_radius_around_town(self):
+        self.ui.textBrowser_places_info.clear()
         if not input_number_correct(1, self.ui.lineEdit_radius.text()):
             QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius', QMessageBox.Close,
                                 QMessageBox.Close)
