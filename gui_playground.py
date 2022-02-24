@@ -67,10 +67,16 @@ class MainWindow(QMainWindow):
         self.ui.gridLayout_html_map.addWidget(self.ui.qWebEngineView_html_map, 6, 0, 1, 6)
 
     def print_places_into_text_browser(self, places):
+        self.ui.textBrowser_places_info.setOpenExternalLinks(True)
         for place in places:
-            for item in place:
-                self.ui.textBrowser_places_info.append(str(item))
+            print(place[0])
+            # self.ui.textBrowser_places_info.append('<a
+            # href="http://www.zanikleobce.cz/index.php?obec=15431">test</a>')
+            self.ui.textBrowser_places_info.append('<a href="{}">{}</a>'.format(place[0], place[1]))
+            for i in range(2, len(place)):
+                self.ui.textBrowser_places_info.append(str(place[i]))
             self.ui.textBrowser_places_info.append(20 * '-')
+            # self.ui.textBrowser_places_info.setOpenExternalLinks(True)
 
     def on_click_save_map(self, save_format):
         image_filepath_save = self.ui.lineEdit_save_html.text()
@@ -107,7 +113,6 @@ class MainWindow(QMainWindow):
                                 QMessageBox.Close,
                                 QMessageBox.Close)
             return True
-
 
     @pyqtSlot()
     def on_click_draw(self):
