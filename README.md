@@ -3,7 +3,7 @@ The graphical interface for database of czech forgotten places http://www.zanikl
 
 ### Execution
 ```
-./gui_plaground
+./gui_plaground.py
 ```
 ### Required packages:
 - PyQt5
