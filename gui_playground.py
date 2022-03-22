@@ -4,12 +4,14 @@ from pathlib import Path
 from shutil import copyfile
 
 from PyQt5.QtCore import pyqtSlot, QUrl
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
+    QVBoxLayout
 
 from circle_area_webpage import get_html_map_with_markers, get_html_map_with_markers_town, \
     get_html_map_with_markers_town_and_radius
 from get_actual_db import get_table_of_lost_places_sqlitedb, get_center_town_coordinates
 from gui_map_drawer import Ui_MainWindow
+from PyQt5.QtWidgets import QFormLayout
 
 
 def input_number_correct(count_of_numbers, input):
@@ -38,6 +40,8 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_draw_map_by_town.clicked.connect(self.on_click_draw_by_town)
         self.ui.pushButton_update_db.clicked.connect(self.on_click_update_db)
         self.ui.pushButton_draw_map_radius_around_town.clicked.connect(self.on_click_draw_by_radius_around_town)
+        # self.create_button_list()
+        self.layout = QVBoxLayout(self.ui.scrollAreaWidgetContents_places_buttons)
         self.show()
 
     def set_filename_open(self):
@@ -66,16 +70,18 @@ class MainWindow(QMainWindow):
         self.ui.qWebEngineView_html_map.load(QUrl.fromLocalFile(file_path))
         self.ui.gridLayout_html_map.addWidget(self.ui.qWebEngineView_html_map, 6, 0, 1, 6)
 
-    def print_places_into_text_browser(self, places):
-        self.ui.textBrowser_places_info.setOpenExternalLinks(True)
+    def print_places_into_scroll_area(self, places):
+        # self.ui.textBrowser_places_info.setOpenExternalLinks(True)
+        # layout = QVBoxLayout(self.ui.scrollAreaWidgetContents_places_buttons)
         for place in places:
-            print(place[0])
+            self.layout.addWidget(QPushButton(place[1], self.ui.scrollAreaWidgetContents_places_buttons))
+            # print(place[0])
             # self.ui.textBrowser_places_info.append('<a
             # href="http://www.zanikleobce.cz/index.php?obec=15431">test</a>')
-            self.ui.textBrowser_places_info.append('<a href="{}">{}</a>'.format(place[0], place[1]))
-            for i in range(2, len(place)):
-                self.ui.textBrowser_places_info.append(str(place[i]))
-            self.ui.textBrowser_places_info.append(20 * '-')
+            # self.ui.textBrowser_places_info.append('<a href="{}">{}</a>'.format(place[0], place[1]))
+            # for i in range(2, len(place)):
+            #     self.ui.textBrowser_places_info.append(str(place[i]))
+            # self.ui.textBrowser_places_info.append(20 * '-')
             # self.ui.textBrowser_places_info.setOpenExternalLinks(True)
 
     def on_click_save_map(self, save_format):
@@ -114,9 +120,14 @@ class MainWindow(QMainWindow):
                                 QMessageBox.Close)
             return True
 
+    def remove_places_from_layout(self):
+        for i in reversed(range(self.layout.count())):
+            self.layout.itemAt(i).widget().setParent(None)
+
     @pyqtSlot()
     def on_click_draw(self):
-        self.ui.textBrowser_places_info.clear()
+        self.remove_places_from_layout()
+        # self.ui.textBrowser_places_info.clear()
         if not (input_number_correct(2, self.ui.lineEdit_center.text())
                 and input_number_correct(1, self.ui.lineEdit_radius.text())):
             QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius or center', QMessageBox.Close,
@@ -128,22 +139,24 @@ class MainWindow(QMainWindow):
         places = get_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
         if self.places_empty(places):
             return
-        self.print_places_into_text_browser(places)
+        self.print_places_into_scroll_area(places)
         self.show_html_map_in_grid()
 
     @pyqtSlot()
     def on_click_draw_by_town(self):
-        self.ui.textBrowser_places_info.clear()
+        self.remove_places_from_layout()
+        # self.ui.textBrowser_places_info.clear()
         # html_map_filepath = os.path.join('temporary_files', 'map.html')
         places = get_html_map_with_markers_town(self.ui.lineEdit_town.text(), self.html_map_filepath)
         if self.places_empty(places):
             return
-        self.print_places_into_text_browser(places)
+        self.print_places_into_scroll_area(places)
         self.show_html_map_in_grid()
 
     @pyqtSlot()
     def on_click_draw_by_radius_around_town(self):
-        self.ui.textBrowser_places_info.clear()
+        self.remove_places_from_layout()
+        # self.ui.textBrowser_places_info.clear()
         if not input_number_correct(1, self.ui.lineEdit_radius.text()):
             QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius', QMessageBox.Close,
                                 QMessageBox.Close)
@@ -152,7 +165,7 @@ class MainWindow(QMainWindow):
                                                            self.html_map_filepath)
         if self.places_empty(places):
             return
-        self.print_places_into_text_browser(places)
+        self.print_places_into_scroll_area(places)
         self.show_html_map_in_grid()
 
     def on_click_update_db(self):
@@ -161,6 +174,11 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             get_table_of_lost_places_sqlitedb()
             get_center_town_coordinates()
+
+    # def create_button_list(self):
+    #     layout = QVBoxLayout(self.ui.scrollAreaWidgetContents_places_buttons)
+    #     for i in range(0,60):
+    #         layout.addWidget(QPushButton(str(i), self.ui.scrollAreaWidgetContents_places_buttons))
 
 
 if __name__ == "__main__":
