@@ -3,12 +3,14 @@ import sys
 from pathlib import Path
 from shutil import copyfile
 
+import folium
 from PyQt5.QtCore import pyqtSlot, QUrl
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
     QVBoxLayout
+from folium import Popup
 
 from circle_area_webpage import get_html_map_with_markers, get_html_map_with_markers_town, \
-    get_html_map_with_markers_town_and_radius
+    get_html_map_with_markers_town_and_radius, add_places_to_map
 from get_actual_db import get_table_of_lost_places_sqlitedb, get_center_town_coordinates
 from gui_map_drawer import Ui_MainWindow
 from PyQt5.QtWidgets import QFormLayout
@@ -70,11 +72,21 @@ class MainWindow(QMainWindow):
         self.ui.qWebEngineView_html_map.load(QUrl.fromLocalFile(file_path))
         self.ui.gridLayout_html_map.addWidget(self.ui.qWebEngineView_html_map, 6, 0, 1, 6)
 
+    @pyqtSlot()
+    def get_clicked_town_map(self, places, index_of_place):
+        m = folium.Map(location=(places[index_of_place][-2], places[index_of_place][-1]))
+        folium.CircleMarker(location=(places[index_of_place][-2], places[index_of_place][-1]), popup=Popup('Picasso', show=True)).add_to(m)
+        filepath = os.path.join('temporary_files', 'map.html')
+        add_places_to_map(m, filepath, [places[index_of_place]])
+        # print(name)
+
     def print_places_into_scroll_area(self, places):
         # self.ui.textBrowser_places_info.setOpenExternalLinks(True)
         # layout = QVBoxLayout(self.ui.scrollAreaWidgetContents_places_buttons)
-        for place in places:
-            self.layout.addWidget(QPushButton(place[1], self.ui.scrollAreaWidgetContents_places_buttons))
+        for i in range(0, len(places)):
+            button_town = QPushButton(places[i][1], self.ui.scrollAreaWidgetContents_places_buttons)
+            self.layout.addWidget(button_town)
+            button_town.clicked.connect(lambda: self.get_clicked_town_map(places, i))
             # print(place[0])
             # self.ui.textBrowser_places_info.append('<a
             # href="http://www.zanikleobce.cz/index.php?obec=15431">test</a>')
