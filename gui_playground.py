@@ -75,26 +75,19 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def get_clicked_town_map(self, places, index_of_place):
         m = folium.Map(location=(places[index_of_place][-2], places[index_of_place][-1]))
-        folium.CircleMarker(location=(places[index_of_place][-2], places[index_of_place][-1]), popup=Popup('Picasso', show=True)).add_to(m)
+        folium.CircleMarker(location=(places[index_of_place][-2], places[index_of_place][-1]),
+                            popup=Popup('Picasso', show=True)).add_to(m)
         filepath = os.path.join('temporary_files', 'map.html')
         add_places_to_map(m, filepath, [places[index_of_place]])
-        # print(name)
 
     def print_places_into_scroll_area(self, places):
-        # self.ui.textBrowser_places_info.setOpenExternalLinks(True)
-        # layout = QVBoxLayout(self.ui.scrollAreaWidgetContents_places_buttons)
+        def load_and_show(places_, i_):
+            self.get_clicked_town_map(places_, i_)
+            self.show_html_map_in_grid()
         for i in range(0, len(places)):
             button_town = QPushButton(places[i][1], self.ui.scrollAreaWidgetContents_places_buttons)
+            button_town.clicked.connect(lambda ch, i=i: load_and_show(places, i))
             self.layout.addWidget(button_town)
-            button_town.clicked.connect(lambda: self.get_clicked_town_map(places, i))
-            # print(place[0])
-            # self.ui.textBrowser_places_info.append('<a
-            # href="http://www.zanikleobce.cz/index.php?obec=15431">test</a>')
-            # self.ui.textBrowser_places_info.append('<a href="{}">{}</a>'.format(place[0], place[1]))
-            # for i in range(2, len(place)):
-            #     self.ui.textBrowser_places_info.append(str(place[i]))
-            # self.ui.textBrowser_places_info.append(20 * '-')
-            # self.ui.textBrowser_places_info.setOpenExternalLinks(True)
 
     def on_click_save_map(self, save_format):
         image_filepath_save = self.ui.lineEdit_save_html.text()
