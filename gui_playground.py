@@ -86,7 +86,8 @@ class MainWindow(QMainWindow):
             self.show_html_map_in_grid()
         for i in range(0, len(places)):
             button_town = QPushButton(places[i][1], self.ui.scrollAreaWidgetContents_places_buttons)
-            button_town.clicked.connect(lambda ch, i=i: load_and_show(places, i))
+            # this with lambda function is needed to add multiple buttons with different labels
+            button_town.clicked.connect(lambda ch, i_lambda=i: load_and_show(places, i_lambda))
             self.layout.addWidget(button_town)
 
     def on_click_save_map(self, save_format):
