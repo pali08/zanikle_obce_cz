@@ -4,8 +4,8 @@ from pathlib import Path
 from shutil import copyfile
 
 import folium
-from PyQt5.QtCore import pyqtSlot, QUrl
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
+from PyQt6.QtCore import pyqtSlot, QUrl
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
     QVBoxLayout
 from folium import Popup
 
@@ -13,7 +13,9 @@ from circle_area_webpage import get_html_map_with_markers, get_html_map_with_mar
     get_html_map_with_markers_town_and_radius, add_places_to_map
 from get_actual_db import get_table_of_lost_places_sqlitedb, get_center_town_coordinates
 from gui_map_drawer import Ui_MainWindow
-from PyQt5.QtWidgets import QFormLayout
+
+
+# from PyQt6.QtWidgets import QFormLayout
 
 
 def input_number_correct(count_of_numbers, input):
@@ -57,19 +59,22 @@ class MainWindow(QMainWindow):
         elif save_format == 'png':
             dialog.setDefaultSuffix('png')
             save_filter = 'Image Files (*.png *.jpg *.bmp)'
-        if 'PYCHARM_HOSTED' in os.environ:
-            return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format),
-                                          directory=str(Path.home()),
-                                          filter=save_filter,
-                                          options=QFileDialog.DontUseNativeDialog)
-        else:
-            return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format),
-                                          directory=str(Path.home()),
-                                          filter=save_filter)
+        # if 'PYCHARM_HOSTED' in os.environ:
+        #    return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format),
+        #                                  directory=str(Path.home()),
+        #                                  filter=save_filter,
+        #                                  options=QFileDialog.DontUseNativeDialog)
+        # else:
+        return dialog.getSaveFileName(self, caption="Save map as {}".format(save_format),
+                                      directory=str(Path.home()),
+                                      filter=save_filter)
 
     def show_html_map_in_grid(self):
         file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'temporary_files', "map.html"))
-        self.ui.qWebEngineView_html_map.load(QUrl.fromLocalFile(file_path))
+        with open(file_path, mode='r', encoding='utf-8') as f:
+            html_map = f.read()
+        self.ui.qWebEngineView_html_map.setHtml(html_map)
+        # self.ui.qWebEngineView_html_map.load(QUrl.fromLocalFile(file_path))
         self.ui.gridLayout_html_map.addWidget(self.ui.qWebEngineView_html_map, 6, 0, 1, 6)
 
     @pyqtSlot()
@@ -84,6 +89,7 @@ class MainWindow(QMainWindow):
         def load_and_show(places_, i_):
             self.get_clicked_town_map(places_, i_)
             self.show_html_map_in_grid()
+
         for i in range(0, len(places)):
             button_town = QPushButton(places[i][1], self.ui.scrollAreaWidgetContents_places_buttons)
             # this with lambda function is needed to add multiple buttons with different labels
@@ -94,8 +100,9 @@ class MainWindow(QMainWindow):
         image_filepath_save = self.ui.lineEdit_save_html.text()
         if not os.path.exists(os.path.dirname(image_filepath_save)) or os.path.exists(image_filepath_save):
             QMessageBox.question(self, 'Problem saving file',
-                                 'Directory not exists or file already exists. Pick another path', QMessageBox.Ok,
-                                 QMessageBox.Ok)
+                                 'Directory not exists or file already exists. Pick another path',
+                                 QMessageBox.StandardButton.Ok,
+                                 QMessageBox.StandardButton.Ok)
             image_filepath_save = self.set_filename_save(save_format)[0]
             self.ui.lineEdit_save_html.setText(image_filepath_save)
         try:
@@ -122,8 +129,8 @@ class MainWindow(QMainWindow):
     def places_empty(self, places):
         if not places:
             QMessageBox.warning(self, 'Nothing found.', 'For given input no abandoned place was found',
-                                QMessageBox.Close,
-                                QMessageBox.Close)
+                                QMessageBox.StandardButton.Close,
+                                QMessageBox.StandardButton.Close)
             return True
 
     def remove_places_from_layout(self):
@@ -136,8 +143,9 @@ class MainWindow(QMainWindow):
         # self.ui.textBrowser_places_info.clear()
         if not (input_number_correct(2, self.ui.lineEdit_center.text())
                 and input_number_correct(1, self.ui.lineEdit_radius.text())):
-            QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius or center', QMessageBox.Close,
-                                QMessageBox.Close)
+            QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius or center',
+                                QMessageBox.StandardButton.Close,
+                                QMessageBox.StandardButton.Close)
             return
         textbox_value_center = self.ui.lineEdit_center.text()
         textbox_value_radius = float(self.ui.lineEdit_radius.text())
@@ -164,8 +172,8 @@ class MainWindow(QMainWindow):
         self.remove_places_from_layout()
         # self.ui.textBrowser_places_info.clear()
         if not input_number_correct(1, self.ui.lineEdit_radius.text()):
-            QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius', QMessageBox.Close,
-                                QMessageBox.Close)
+            QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius', QMessageBox.StandardButton.Close,
+                                QMessageBox.StandardButton.Close)
             return
         places = get_html_map_with_markers_town_and_radius(self.ui.lineEdit_town.text(), self.ui.lineEdit_radius.text(),
                                                            self.html_map_filepath)
@@ -176,8 +184,9 @@ class MainWindow(QMainWindow):
 
     def on_click_update_db(self):
         reply = QMessageBox.question(self, 'Confirmation', 'Update database?',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                     QMessageBox.StandardButton.No)
+        if reply == QMessageBox.StandardButton.Yes:
             get_table_of_lost_places_sqlitedb()
             get_center_town_coordinates()
 
@@ -191,4 +200,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
