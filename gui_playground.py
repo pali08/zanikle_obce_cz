@@ -6,7 +6,7 @@ from shutil import copyfile
 import folium
 from PyQt6.QtCore import pyqtSlot, QUrl
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
-    QVBoxLayout
+    QVBoxLayout, QTextBrowser
 from folium import Popup
 
 from circle_area_webpage import get_html_map_with_markers, get_html_map_with_markers_town, \
@@ -91,9 +91,25 @@ class MainWindow(QMainWindow):
             self.show_html_map_in_grid()
 
         for i in range(0, len(places)):
+
+            # for place in places:
+            #     print(place[0])
+            #     # self.ui.textBrowser_places_info.append('<a
+            #     # href="http://www.zanikleobce.cz/index.php?obec=15431">test</a>')
+            #     self.ui.textBrowser_places_info.append('<a href="{}">{}</a>'.format(place[0], place[1]))
+            #     for i in range(2, len(place)):
+            #         self.ui.textBrowser_places_info.append(str(place[i]))
+            #     self.ui.textBrowser_places_info.append(20 * '-')
+            #     # self.ui.textBrowser_places_info.setOpenExternalLinks(True)
+
             button_town = QPushButton(places[i][1], self.ui.scrollAreaWidgetContents_places_buttons)
+            text_area = QTextBrowser()
+            text_area.append('<a href="{}">{}</a>'.format(places[i][0], places[i][1]))
+            for j in range(2, len(places[i])):
+                text_area.append(str(places[i][j]))
             # this with lambda function is needed to add multiple buttons with different labels
             button_town.clicked.connect(lambda ch, i_lambda=i: load_and_show(places, i_lambda))
+            self.layout.addWidget(text_area)
             self.layout.addWidget(button_town)
 
     def on_click_save_map(self, save_format):
