@@ -5,6 +5,7 @@ from shutil import copyfile
 
 import folium
 from PyQt6.QtCore import pyqtSlot, QUrl
+from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
     QVBoxLayout, QTextBrowser
 from folium import Popup
@@ -109,6 +110,9 @@ class MainWindow(QMainWindow):
                 text_area.append(str(places[i][j]))
             # this with lambda function is needed to add multiple buttons with different labels
             button_town.clicked.connect(lambda ch, i_lambda=i: load_and_show(places, i_lambda))
+            font_metrics_height = text_area.fontMetrics().height()
+            text_area.setMinimumHeight(font_metrics_height * (len(places[i]) + 1))
+            text_area.setMaximumHeight(font_metrics_height * (len(places[i]) + 1))
             self.layout.addWidget(text_area)
             self.layout.addWidget(button_town)
 
