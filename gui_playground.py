@@ -9,6 +9,7 @@ from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
     QVBoxLayout, QTextBrowser
 from folium import Popup
+from pyqt6_plugins.examplebuttonplugin import QtGui
 
 from circle_area_webpage import get_html_map_with_markers, get_html_map_with_markers_town, \
     get_html_map_with_markers_town_and_radius, add_places_to_map
@@ -105,6 +106,9 @@ class MainWindow(QMainWindow):
 
             button_town = QPushButton(places[i][1], self.ui.scrollAreaWidgetContents_places_buttons)
             text_area = QTextBrowser()
+            text_area.anchorClicked.connect(QtGui.QDesktopServices.openUrl)
+            text_area.setOpenExternalLinks(True)
+            text_area.setOpenLinks(True)
             text_area.append('<a href="{}">{}</a>'.format(places[i][0], places[i][1]))
             for j in range(2, len(places[i])):
                 text_area.append(str(places[i][j]))
