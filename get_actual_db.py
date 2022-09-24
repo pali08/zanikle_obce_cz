@@ -70,7 +70,7 @@ def get_table_of_lost_places_sqlitedb():
     cur = con.cursor()
     cur.execute('''CREATE TABLE database_lost_places 
     (link text primary key,
-    id integer  
+    id integer,
     name text, 
     category text,
     municipality text,
