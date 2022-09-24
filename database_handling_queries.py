@@ -24,7 +24,8 @@ def get_places_in_radius(specified_point, radius, db_connection, close_connectio
     db_connection.create_function('getdistance', 4, get_distance)
     cursor = db_connection.cursor()
     cursor.execute(
-        'SELECT * FROM database_lost_places WHERE getdistance({}, {}, north, east) < {} and north is not null and '
+        'SELECT link,name,category,municipality,district,end_reason,end_years,actual_state,north,east '
+        'FROM database_lost_places WHERE getdistance({}, {}, north, east) < {} and north is not null and '
         'east is not null'.format(
             str(specified_point_latitude), str(specified_point_longitude), str(radius)))
     rows = cursor.fetchall()
@@ -46,12 +47,14 @@ def get_places_by_municipality(municipality, db_connection):
         print('this branch is executed')
         town, district = get_municipality_and_district(municipality)
         cursor.execute(
-            'SELECT * FROM database_lost_places WHERE lower(municipality)=lower(\'{}\') and lower(district) = lower('
+            'SELECT link,name,category,municipality,district,end_reason,end_years,actual_state,north,east '
+            'FROM database_lost_places WHERE lower(municipality)=lower(\'{}\') and lower(district) = lower('
             '\'{}\')'.format(
                 town, district))
     else:
         cursor.execute(
-            'SELECT * FROM database_lost_places WHERE lower(municipality)=lower(\'{}\')'.format(
+            'SELECT link,name,category,municipality,district,end_reason,end_years,actual_state,north,east '
+            'FROM database_lost_places WHERE lower(municipality)=lower(\'{}\')'.format(
                 municipality))
     rows = cursor.fetchall()
     db_connection.close()

@@ -69,7 +69,8 @@ def get_table_of_lost_places_sqlitedb():
     con = sqlite3.connect(os.path.join('.', 'database.db'))
     cur = con.cursor()
     cur.execute('''CREATE TABLE database_lost_places 
-    (link text primary key, 
+    (link text primary key,
+    id integer  
     name text, 
     category text,
     municipality text,
@@ -87,16 +88,18 @@ def get_table_of_lost_places_sqlitedb():
         table_lost_places = soup.find('table').find('table').find('table')
         for tr in table_lost_places.findAll("tr")[2:]:
             full_link = url_main + tr.find('td').find('a')['href']
+            place_id = int(full_link.split('=')[-1])
             try:
                 data_of_lost_place = get_data_of_place(full_link)
                 cur.execute(
                     "insert into database_lost_places(link, name, category, municipality, district, "
                     "end_reason, "
                     "actual_state, north, east) "
-                    "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
-                        full_link, data_of_lost_place['name'], data_of_lost_place['category'],
+                    "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
+                        full_link, place_id, data_of_lost_place['name'], data_of_lost_place['category'],
                         data_of_lost_place['municipality'],
                         data_of_lost_place['district'], data_of_lost_place['end_reason'],
+                        data_of_lost_place['end_years'],
                         data_of_lost_place['actual_state'], data_of_lost_place['N'],
                         data_of_lost_place['E']
                     ))
