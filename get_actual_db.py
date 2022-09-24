@@ -61,6 +61,22 @@ def get_number_of_pages():
     return int(last_page_link.text)
 
 
+def insert_into_table(cursor, full_link, place_id):
+    data_of_lost_place = get_data_of_place(full_link)
+    cursor.execute(
+        "insert into database_lost_places(link, id, name, category, municipality, district, "
+        "end_reason, end_years,"
+        "actual_state, north, east) "
+        "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
+            full_link, place_id, data_of_lost_place['name'], data_of_lost_place['category'],
+            data_of_lost_place['municipality'],
+            data_of_lost_place['district'], data_of_lost_place['end_reason'],
+            data_of_lost_place['end_years'],
+            data_of_lost_place['actual_state'], data_of_lost_place['N'],
+            data_of_lost_place['E']
+        ))
+
+
 def get_table_of_lost_places_sqlitedb():
     if not connection_is_ok():
         return
@@ -90,32 +106,24 @@ def get_table_of_lost_places_sqlitedb():
             full_link = url_main + tr.find('td').find('a')['href']
             place_id = int(full_link.split('=')[-1])
             try:
-                data_of_lost_place = get_data_of_place(full_link)
-                cur.execute(
-                    "insert into database_lost_places(link, id, name, category, municipality, district, "
-                    "end_reason, end_years,"
-                    "actual_state, north, east) "
-                    "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
-                        full_link, place_id, data_of_lost_place['name'], data_of_lost_place['category'],
-                        data_of_lost_place['municipality'],
-                        data_of_lost_place['district'], data_of_lost_place['end_reason'],
-                        data_of_lost_place['end_years'],
-                        data_of_lost_place['actual_state'], data_of_lost_place['N'],
-                        data_of_lost_place['E']
-                    ))
+                insert_into_table(cur, full_link, place_id)
                 # print('temp_output - got data from page: ' + str(full_link))
-            except urllib3.exceptions.NewConnectionError:
+            except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError,
+                    urllib3.exceptions.ProtocolError, ConnectionResetError) as urllib3ConnectionException:
                 sleep(30)
-                continue
-            except urllib3.exceptions.MaxRetryError:
-                sleep(30)
-                continue
-            except urllib3.exceptions.ProtocolError:
-                sleep(30)
-                continue
-            except ConnectionResetError:
-                sleep(30)
-                continue
+                try:
+                    insert_into_table(cur, full_link, place_id)
+                except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError,
+                        urllib3.exceptions.ProtocolError, ConnectionResetError) as urllib3ConnectionException:
+                    sleep(30)
+                    try:
+                        insert_into_table(cur, full_link, place_id)
+                    except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError,
+                            urllib3.exceptions.ProtocolError, ConnectionResetError) as urllib3ConnectionException:
+                        print(
+                            f'Unable to get data for {full_link}, because following exception occured:'
+                            f'{os.linesep}{urllib3ConnectionException}')
+
     cur.execute("CREATE INDEX index_north ON database_lost_places (north);")
     cur.execute("CREATE INDEX index_east ON database_lost_places (east);")
     con.commit()
