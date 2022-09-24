@@ -92,8 +92,8 @@ def get_table_of_lost_places_sqlitedb():
             try:
                 data_of_lost_place = get_data_of_place(full_link)
                 cur.execute(
-                    "insert into database_lost_places(link, name, category, municipality, district, "
-                    "end_reason, "
+                    "insert into database_lost_places(link, id, name, category, municipality, district, "
+                    "end_reason, end_years"
                     "actual_state, north, east) "
                     "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
                         full_link, place_id, data_of_lost_place['name'], data_of_lost_place['category'],
@@ -103,7 +103,7 @@ def get_table_of_lost_places_sqlitedb():
                         data_of_lost_place['actual_state'], data_of_lost_place['N'],
                         data_of_lost_place['E']
                     ))
-                print('temp_output - got data from page: ' + str(full_link))
+                # print('temp_output - got data from page: ' + str(full_link))
             except urllib3.exceptions.NewConnectionError:
                 sleep(30)
                 continue
