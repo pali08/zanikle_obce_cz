@@ -7,10 +7,12 @@ import sys
 import traceback
 from io import StringIO
 from shutil import copyfile, move
+from time import sleep
 
 import overpy
 import requests
 import pandas as pd
+import urllib3.exceptions
 from bs4 import BeautifulSoup
 from urllib.parse import unquote, urlparse
 from pathlib import PurePosixPath
@@ -54,29 +56,9 @@ def get_number_of_pages():
     url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
-    table_lost_places = soup.find('table')
-    highest_page = 0
-    for tr in table_lost_places.findAll("tr"):
-        tds = tr.findAll("td")
-        try:
-            table_inside = tds[0].find('table')
-            for tr in table_inside.findAll('tr'):
-                for td in tr.findAll('td'):
-                    for div in td.findAll('div'):
-                        for link in div.findAll('a'):
-                            if 'str=' in link['href']:
-                                if int(link['href'].rsplit('str=')[1]) > highest_page:
-                                    highest_page = int(link['href'].rsplit('str=')[1])
-        except AttributeError as attr_error:
-            print(
-                'While getting number of pages, attribute error occured - this should not be problem. Stacktrace '
-                'follows: ' + str(
-                    attr_error))
-        except Exception as any_exception:
-            print('While getting number of pages, unexpected exception occurred:\n' + str(
-                any_exception) + '\nstack trace follows')
-            print(traceback.format_exc())
-    return highest_page
+    last_page_link = soup.find('table').find('table').find('tr').find('td').findNext('td').findNext('td') \
+        .find('div').findAll('a', recursive=False)[-1]
+    return int(last_page_link.text)
 
 
 def get_table_of_lost_places_sqlitedb():
@@ -97,44 +79,40 @@ def get_table_of_lost_places_sqlitedb():
     actual_state text, 
     north real, 
     east real)''')
-    # for i in range(1, 2):
+    # for i in range(1, 3):
     for i in range(1, num_of_pages + 1):
         url_lost_places = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=' + str(i)
         response = requests.get(url_lost_places)
         soup = BeautifulSoup(response.text, 'html.parser')
-        table_lost_places = soup.find('table')
-        for tr in table_lost_places.findAll("tr"):
-            tds = tr.findAll("td")
+        table_lost_places = soup.find('table').find('table').find('table')
+        for tr in table_lost_places.findAll("tr")[2:]:
+            full_link = url_main + tr.find('td').find('a')['href']
             try:
-                link_anchor = tds[0].find('a')
-                if link_anchor is not None:
-                    link_href = link_anchor['href']
-                    if 'obec=' in link_href:
-                        full_link = url_main + link_href
-                        data_of_lost_place = get_data_of_place(full_link)
-                        try:
-                            cur.execute(
-                                "insert into database_lost_places(link, name, category, municipality, district, "
-                                "end_reason, "
-                                "actual_state, north, east) "
-                                "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
-                                    full_link, data_of_lost_place['name'], data_of_lost_place['category'],
-                                    data_of_lost_place['municipality'],
-                                    data_of_lost_place['district'], data_of_lost_place['end_reason'],
-                                    data_of_lost_place['actual_state'], data_of_lost_place['N'],
-                                    data_of_lost_place['E']
-                                ))
-                            print('temp_output - got data from page: ' + str(link_href))
-                        except sqlite3.OperationalError:
-                            print('sqlite3.operational error on {}, data_of_lost_place {}, stacktrace folows:'.format(
-                                full_link, str(data_of_lost_place)))
-                            print(traceback.format_exc())
-            except AttributeError as attr_error:
-                print('attribute error - this should not be problem. Stacktrace follows: ' + str(attr_error))
-            except Exception as any_exception:
-                print('Unexpected xception occurred: \n' + str(any_exception) + '\nstack trace follows:\n')
-                # print()
-                print(traceback.format_exc())
+                data_of_lost_place = get_data_of_place(full_link)
+                cur.execute(
+                    "insert into database_lost_places(link, name, category, municipality, district, "
+                    "end_reason, "
+                    "actual_state, north, east) "
+                    "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
+                        full_link, data_of_lost_place['name'], data_of_lost_place['category'],
+                        data_of_lost_place['municipality'],
+                        data_of_lost_place['district'], data_of_lost_place['end_reason'],
+                        data_of_lost_place['actual_state'], data_of_lost_place['N'],
+                        data_of_lost_place['E']
+                    ))
+                print('temp_output - got data from page: ' + str(full_link))
+            except urllib3.exceptions.NewConnectionError:
+                sleep(30)
+                continue
+            except urllib3.exceptions.MaxRetryError:
+                sleep(30)
+                continue
+            except urllib3.exceptions.ProtocolError:
+                sleep(30)
+                continue
+            except ConnectionResetError:
+                sleep(30)
+                continue
     cur.execute("CREATE INDEX index_north ON database_lost_places (north);")
     cur.execute("CREATE INDEX index_east ON database_lost_places (east);")
     con.commit()
@@ -179,8 +157,8 @@ def get_center_town_coordinates():
     csv_towns = requests.get('https://raw.githubusercontent.com/33bcdd/souradnice-mest/master/souradnice.csv').text
     con = sqlite3.connect(os.path.join('.', 'database.db'))
     cur = con.cursor()
-    cur.execute('''DROP TABLE towns_with_coordinates''')
-    cur.execute('''CREATE TABLE towns_with_coordinates
+    cur.execute('''DROP TABLE IF EXISTS towns_with_coordinates''')
+    cur.execute('''CREATE TABLE IF NOT EXISTS towns_with_coordinates
     (town text,
     code text,
     district text,
@@ -192,7 +170,7 @@ def get_center_town_coordinates():
     east real)''')
     csv_file_handle = StringIO(csv_towns)
     csv_towns_reader = csv.reader(csv_file_handle, delimiter=',')
-    next(csv_towns_reader) # remove first line
+    next(csv_towns_reader)  # remove first line
     for row in csv_towns_reader:
         # print(i.tags)
         # print(str(i.lat) + str(i.lon) + i.tags['name'])
@@ -210,7 +188,7 @@ def get_center_town_coordinates():
     con.commit()
     con.close()
 
-#getting town coordinates from overpass
+# getting town coordinates from overpass
 # def get_center_town_coordinates():
 #     czechia_bbox = [SOUTHEST_POINT, WESTEST_POINT, NORTHEST_POINT, EASTEST_POINT]
 #     api = overpy.Overpass()
