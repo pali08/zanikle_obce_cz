@@ -93,7 +93,7 @@ def get_table_of_lost_places_sqlitedb():
                 data_of_lost_place = get_data_of_place(full_link)
                 cur.execute(
                     "insert into database_lost_places(link, id, name, category, municipality, district, "
-                    "end_reason, end_years"
+                    "end_reason, end_years,"
                     "actual_state, north, east) "
                     "values (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', {}, {})".format(
                         full_link, place_id, data_of_lost_place['name'], data_of_lost_place['category'],
