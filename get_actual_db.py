@@ -1,34 +1,19 @@
 import csv
 import os.path
-import pickle
-import shutil
 import sqlite3
-import sys
 import traceback
 from io import StringIO
-from shutil import copyfile, move
+from shutil import move
 from time import sleep
 
-import overpy
 import requests
-import pandas as pd
 import urllib3.exceptions
 from bs4 import BeautifulSoup
-from urllib.parse import unquote, urlparse
-from pathlib import PurePosixPath
 
 from get_data_from_page import get_data_of_place
-from page_download import save_page
 
 url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1'
 url_main = 'http://www.zanikleobce.cz/'
-
-# way to get bounding box:
-# czechia_json = requests.get('https://nominatim.openstreetmap.org/search', params={'q':'czechia', 'format':'json'}).json()[0]['boundingbox']
-# WESTEST_POINT = czechia_json[2]
-# EASTEST_POINT = czechia_json[3]
-# NORTHEST_POINT = czechia_json[1]
-# SOUTHEST_POINT = czechia_json[0]
 
 WESTEST_POINT = 12.09139
 EASTEST_POINT = 18.85889
@@ -133,37 +118,6 @@ def get_table_of_lost_places_sqlitedb():
           'please replace database.db with database.db_bck')
 
 
-def get_table_of_lost_places_pages(path, is_test=False):
-    if not connection_is_ok():
-        return
-    if is_test:
-        num_of_pages = 1
-    else:
-        num_of_pages = get_number_of_pages()
-    counter = 0
-    for i in range(1, num_of_pages + 1):
-        url_lost_places = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=' + str(i)
-        response = requests.get(url_lost_places)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table_lost_places = soup.find('table')
-        for tr in table_lost_places.findAll("tr"):
-            tds = tr.findAll("td")
-            try:
-                link = tds[0].find('a')['href']
-                if 'obec=' in link:
-                    counter += 1
-                    session = requests.Session()
-                    response = session.get(url_main + link)
-                    save_page(response,
-                              os.path.join(path, 'item_{:05d}'.format(counter)))
-            except AttributeError as attr_error:
-                print('attribute error - this should not be problem. Stacktrace follows' + str(attr_error))
-            except Exception as any_exception:
-                print('Exception occurred:' + str(any_exception) + 'stack trace follows')
-                print(traceback.format_exc())
-    print('Backup of lost places pages was finished (probably) successfully.')
-
-
 def get_center_town_coordinates():
     csv_towns = requests.get('https://raw.githubusercontent.com/33bcdd/souradnice-mest/master/souradnice.csv').text
     con = sqlite3.connect(os.path.join('.', 'database.db'))
@@ -183,9 +137,6 @@ def get_center_town_coordinates():
     csv_towns_reader = csv.reader(csv_file_handle, delimiter=',')
     next(csv_towns_reader)  # remove first line
     for row in csv_towns_reader:
-        # print(i.tags)
-        # print(str(i.lat) + str(i.lon) + i.tags['name'])
-        # print(row)
         try:
             cur.execute(
                 "insert into towns_with_coordinates(town,code,district,district_code,region,"
@@ -198,42 +149,3 @@ def get_center_town_coordinates():
     cur.execute("CREATE INDEX towns ON towns_with_coordinates (town);")
     con.commit()
     con.close()
-
-# getting town coordinates from overpass
-# def get_center_town_coordinates():
-#     czechia_bbox = [SOUTHEST_POINT, WESTEST_POINT, NORTHEST_POINT, EASTEST_POINT]
-#     api = overpy.Overpass()
-#     result = api.query(
-#         'node["place"~"town|city|village|municipality"](' + str(SOUTHEST_POINT) + ',' +
-#         str(WESTEST_POINT) + ',' + str(
-#             NORTHEST_POINT) + ',' + str(EASTEST_POINT) + ');out;')
-#     # todo: these 3 values are not to be printed, but added to DB
-#
-#     con = sqlite3.connect(os.path.join('.', 'database.db'))
-#     cur = con.cursor()
-#     cur.execute('''DROP TABLE towns_with_coordinates''')
-#     cur.execute('''CREATE TABLE towns_with_coordinates
-#     (town text,
-#     north real,
-#     east real)''')
-#     for i in result.nodes:
-#         # print(i.tags)
-#         # print(str(i.lat) + str(i.lon) + i.tags['name'])
-#         try:
-#             cur.execute(
-#                 "insert into towns_with_coordinates(town, north, east) "
-#                 "values (\'{}\', {}, {})".format(i.tags['name'], str(i.lat), str(i.lon)))
-#         except sqlite3.OperationalError:
-#             print('sqlite3.operational error on {}, stacktrace folows:'.format(
-#                 i.tags['name']))
-#             print(traceback.format_exc())
-#     cur.execute("CREATE INDEX towns ON towns_with_coordinates (town);")
-#     con.commit()
-#     con.close()
-
-# if len(sys.argv) == 1:
-#     get_database_of_lost_places_sqlitedb()
-# elif len(sys.argv) == 2:
-#     get_database_of_lost_places_pages(sys.argv[1])
-# else:
-#     print('0 arguments or 1 argument required - path, where to save database of lost places')

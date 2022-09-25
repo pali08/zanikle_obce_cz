@@ -10,7 +10,6 @@ class MyTestCase(unittest.TestCase):
     soup2 = get_soup('http://www.zanikleobce.cz/index.php?obec=13927')
 
     def test_coordinates_1(self):
-        # self.assertTrue(get_coordinates(self.soup1) == pytest.approx({'N': 49.35783, 'E': 16.00700}))  # add assertion here
         self.assertEqual(get_coordinates(self.soup1), {'N': 49.35783, 'E': 16.00700})  # add assertion here
 
     def test_coordinates_2(self):
