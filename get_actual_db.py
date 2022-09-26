@@ -144,12 +144,16 @@ def get_table_of_lost_places():
 
 
 def update_table_of_lost_places():
+    if not connection_is_ok():
+        return
     program_data = load_program_data()
     con = sqlite3.connect(os.path.join('.', 'database.db'))
     cur = con.cursor()
     # highest page from previous run is lowest page now for next run
     lowest_page = program_data['highest_page']
     iterate_over_pages_and_get_data(lowest_page, cur, update_only=True, previous_highest_id=program_data['highest_id'])
+    con.commit()
+    con.close()
 
 
 def get_center_town_coordinates():
