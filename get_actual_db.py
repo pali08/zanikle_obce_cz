@@ -1,4 +1,5 @@
 import csv
+import json
 import os.path
 import sqlite3
 import traceback
@@ -38,7 +39,7 @@ def backup_db():
 
 
 def get_number_of_pages():
-    url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=1'
+    url = 'http://www.zanikleobce.cz/index.php?menu=93&sort=5&l=&str=1'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     last_page_link = soup.find('table').find('table').find('tr').find('td').findNext('td').findNext('td') \
@@ -62,11 +63,62 @@ def insert_into_table(cursor, full_link, place_id):
         ))
 
 
-def get_table_of_lost_places_sqlitedb():
+def try_getting_data(func, cursor, full_link, place_id):
+    try:
+        func(cursor, full_link, place_id)
+    except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError,
+            urllib3.exceptions.ProtocolError, ConnectionResetError) as urllib3ConnectionException:
+        sleep(30)
+        try:
+            func(cursor, full_link, place_id)
+        except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError,
+                urllib3.exceptions.ProtocolError, ConnectionResetError) as urllib3ConnectionException:
+            sleep(30)
+            try:
+                func(cursor, full_link, place_id)
+            except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError,
+                    urllib3.exceptions.ProtocolError, ConnectionResetError) as urllib3ConnectionException:
+                print(
+                    f'Unable to get data for {full_link}, because following exception occured:'
+                    f'{os.linesep}{urllib3ConnectionException}')
+
+
+def load_program_data():
+    with open('program_data.json', mode='r', encoding='utf-8') as f:
+        data_loaded = json.load(f)
+    return data_loaded
+
+
+def edit_program_data(**kwargs):
+    data = load_program_data()
+    with open('program_data.json', mode='w') as out:
+        for key, value in kwargs.items():
+            if value is not None:
+                data[key] = value
+        json_object = json.dumps(data)
+        out.write(json_object)
+
+
+def iterate_over_pages_and_get_data(lowest_page, cursor, update_only=False, previous_highest_id=None):
+    num_of_pages = get_number_of_pages()
+    for i in range(lowest_page, num_of_pages + 1):
+        url_lost_places = 'http://www.zanikleobce.cz/index.php?menu=93&sort=5&l=&str=' + str(i)
+        response = requests.get(url_lost_places)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        table_lost_places = soup.find('table').find('table').find('table')
+        for tr in table_lost_places.findAll("tr")[2:]:
+            full_link = url_main + tr.find('td').find('a')['href']
+            place_id = int(full_link.split('=')[-1])
+            if (update_only and place_id > previous_highest_id) or not update_only:
+                try_getting_data(insert_into_table, cursor, full_link, place_id)
+    edit_program_data(highest_page=num_of_pages, highest_id=place_id)
+
+
+def get_table_of_lost_places():
     if not connection_is_ok():
         return
     backup_db()
-    num_of_pages = get_number_of_pages()
+    # num_of_pages = get_number_of_pages()
     con = sqlite3.connect(os.path.join('.', 'database.db'))
     cur = con.cursor()
     cur.execute('''CREATE TABLE database_lost_places 
@@ -81,34 +133,7 @@ def get_table_of_lost_places_sqlitedb():
     actual_state text, 
     north real, 
     east real)''')
-    # for i in range(1, 3):
-    for i in range(1, num_of_pages + 1):
-        url_lost_places = 'http://www.zanikleobce.cz/index.php?menu=93&sort=1&l=&str=' + str(i)
-        response = requests.get(url_lost_places)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table_lost_places = soup.find('table').find('table').find('table')
-        for tr in table_lost_places.findAll("tr")[2:]:
-            full_link = url_main + tr.find('td').find('a')['href']
-            place_id = int(full_link.split('=')[-1])
-            try:
-                insert_into_table(cur, full_link, place_id)
-                # print('temp_output - got data from page: ' + str(full_link))
-            except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError,
-                    urllib3.exceptions.ProtocolError, ConnectionResetError) as urllib3ConnectionException:
-                sleep(30)
-                try:
-                    insert_into_table(cur, full_link, place_id)
-                except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError,
-                        urllib3.exceptions.ProtocolError, ConnectionResetError) as urllib3ConnectionException:
-                    sleep(30)
-                    try:
-                        insert_into_table(cur, full_link, place_id)
-                    except (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError,
-                            urllib3.exceptions.ProtocolError, ConnectionResetError) as urllib3ConnectionException:
-                        print(
-                            f'Unable to get data for {full_link}, because following exception occured:'
-                            f'{os.linesep}{urllib3ConnectionException}')
-
+    iterate_over_pages_and_get_data(1, cur)
     cur.execute("CREATE INDEX index_north ON database_lost_places (north);")
     cur.execute("CREATE INDEX index_east ON database_lost_places (east);")
     con.commit()
@@ -116,6 +141,15 @@ def get_table_of_lost_places_sqlitedb():
     print('Database update/creation was finished (probably) successfully.'
           'Old database is backed up as database.db_bck. If in doubt (e.g. too many unexpected exceptions occurred), '
           'please replace database.db with database.db_bck')
+
+
+def update_table_of_lost_places():
+    program_data = load_program_data()
+    con = sqlite3.connect(os.path.join('.', 'database.db'))
+    cur = con.cursor()
+    # highest page from previous run is lowest page now for next run
+    lowest_page = program_data['highest_page']
+    iterate_over_pages_and_get_data(lowest_page, cur, update_only=True, previous_highest_id=program_data['highest_id'])
 
 
 def get_center_town_coordinates():

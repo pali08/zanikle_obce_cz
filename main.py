@@ -5,7 +5,7 @@ from shutil import copyfile
 
 import folium
 from PyQt6.QtCore import pyqtSlot, QUrl
-from PyQt6.QtGui import QFontMetrics
+from PyQt6.QtGui import QFontMetrics, QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
     QVBoxLayout, QTextBrowser
 from folium import Popup
@@ -13,7 +13,7 @@ from pyqt6_plugins.examplebuttonplugin import QtGui
 
 from circle_area_webpage import get_html_map_with_markers, get_html_map_with_markers_town, \
     get_html_map_with_markers_town_and_radius, add_places_to_map
-from get_actual_db import get_table_of_lost_places_sqlitedb, get_center_town_coordinates
+from get_actual_db import get_table_of_lost_places, get_center_town_coordinates, update_table_of_lost_places
 from gui_map_drawer import Ui_MainWindow
 
 
@@ -189,11 +189,28 @@ class MainWindow(QMainWindow):
         self.show_html_map_in_grid()
 
     def on_click_update_db(self):
-        reply = QMessageBox.question(self, 'Confirmation', 'Update database?',
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                                     QMessageBox.StandardButton.No)
-        if reply == QMessageBox.StandardButton.Yes:
-            get_table_of_lost_places_sqlitedb()
+        box = QMessageBox()
+        # box.setIcon(QMessageBox.)
+        box.setWindowTitle('Database update')
+        box.setText('Update database\n- Complete update: remove database and get new. It might take few hours, '
+                    'but if previously added places changed after adding, changes will be updated\n- Newly added: get '
+                    'only newly added places. Faster, but in case place was added before last database update and '
+                    'changed after it, those changes will not be transfered to database.')
+        box.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel)
+        button_complete_update = box.button(QMessageBox.StandardButton.Yes)
+        button_complete_update.setText('Complete update')
+        button_complete_update.setIcon(QIcon(None))
+        button_newly_added = box.button(QMessageBox.StandardButton.No)
+        button_newly_added.setText('Newly added')
+        button_newly_added.setIcon(QIcon(None))
+        box.exec()
+
+        if box.clickedButton() == button_complete_update:
+            get_table_of_lost_places()
+            get_center_town_coordinates()
+        if box.clickedButton() == button_newly_added:
+            update_table_of_lost_places()
             get_center_town_coordinates()
 
 
