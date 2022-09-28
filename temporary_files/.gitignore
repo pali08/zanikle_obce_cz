@@ -1,0 +1,4 @@
+# The html with map is stored here. It is changed each search, so we keep maps in this folder ignored
+*
+# Except this file
+!.gitignore
