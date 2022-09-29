@@ -80,3 +80,12 @@ def get_places_in_radius_around_municipality(municipality, radius, db_connection
         result += get_places_in_radius(coordinate_pair, radius, db_connection, close_connection=False)
     db_connection.close()
     return result
+
+
+def get_all_towns():
+    db_connection = sqlite3.connect(DB_FILE)
+    cursor = db_connection.cursor()
+    cursor.execute('SELECT municipality FROM database_lost_places UNION SELECT town FROM towns_with_coordinates')
+    towns = cursor.fetchall()
+    db_connection.close()
+    return [i[0] for i in towns]

@@ -4,15 +4,18 @@ from pathlib import Path
 from shutil import copyfile
 
 import folium
+from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSlot, QUrl
 from PyQt6.QtGui import QFontMetrics, QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
-    QVBoxLayout, QTextBrowser
+    QVBoxLayout, QTextBrowser, QTableView
+from PyQt6.QtWidgets import QCompleter
 from folium import Popup
 from pyqt6_plugins.examplebuttonplugin import QtGui
 
 from circle_area_webpage import get_html_map_with_markers, get_html_map_with_markers_town, \
     get_html_map_with_markers_town_and_radius, add_places_to_map
+from database_handling_queries import get_all_towns
 from get_actual_db import get_table_of_lost_places, get_center_town_coordinates, update_table_of_lost_places
 from gui_map_drawer import Ui_MainWindow
 
@@ -31,6 +34,7 @@ def input_number_correct(count_of_numbers, input):
 
 class MainWindow(QMainWindow):
     def __init__(self):
+        towns = get_all_towns()
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -43,6 +47,10 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_draw_map_by_town.clicked.connect(self.on_click_draw_by_town)
         self.ui.pushButton_update_db.clicked.connect(self.on_click_update_db)
         self.ui.pushButton_draw_map_radius_around_town.clicked.connect(self.on_click_draw_by_radius_around_town)
+        self.towns = towns
+        self.completer = QCompleter(self.towns)
+        self.completer.setCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
+        self.ui.lineEdit_town.setCompleter(self.completer)
         self.layout = QVBoxLayout(self.ui.scrollAreaWidgetContents_places_buttons)
         self.show()
 
