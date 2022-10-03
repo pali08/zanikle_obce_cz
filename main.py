@@ -1,11 +1,13 @@
 import os
 import sys
+import time
 from pathlib import Path
 from shutil import copyfile
+from time import sleep
 
 import folium
 from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSlot, QUrl
+from PyQt6.QtCore import pyqtSlot, QUrl, QRunnable, QThreadPool
 from PyQt6.QtGui import QFontMetrics, QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QGroupBox, QPushButton, QLabel, \
     QVBoxLayout, QTextBrowser, QTableView
@@ -32,6 +34,22 @@ def input_number_correct(count_of_numbers, input):
         return False
 
 
+class Worker(QRunnable):
+    """
+    Worker thread
+    """
+
+    @pyqtSlot()
+    def run(self):
+        '''
+        Your code goes in this function
+        '''
+        print("Thread start")
+        time.sleep(30)
+        print("Thread complete")
+
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         towns = get_all_towns()
@@ -39,6 +57,8 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.html_map_filepath = os.path.join('temporary_files', 'map.html')
+        self.threadpool = QThreadPool()
+        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
         self.ui.gridLayout_html_map.setColumnStretch(0, 1)
         self.ui.gridLayout_html_map.setRowStretch(0, 1)
         self.ui.pushButton_draw_map_by_coordinates.clicked.connect(self.on_click_draw)
@@ -196,6 +216,10 @@ class MainWindow(QMainWindow):
         self.print_places_into_scroll_area(places)
         self.show_html_map_in_grid()
 
+    def function_in_pool(self):
+        worker = Worker()
+        self.threadpool.start(worker)
+
     def on_click_update_db(self):
         box = QMessageBox()
         # box.setIcon(QMessageBox.)
@@ -215,11 +239,14 @@ class MainWindow(QMainWindow):
         box.exec()
 
         if box.clickedButton() == button_complete_update:
-            get_table_of_lost_places()
-            get_center_town_coordinates()
+            self.function_in_pool()
+            pass
+            # get_table_of_lost_places()
+            # get_center_town_coordinates()
         if box.clickedButton() == button_newly_added:
-            update_table_of_lost_places()
-            get_center_town_coordinates()
+            pass
+            # update_table_of_lost_places()
+            # get_center_town_coordinates()
 
 
 if __name__ == "__main__":
