@@ -34,20 +34,36 @@ def input_number_correct(count_of_numbers, input):
         return False
 
 
-class Worker(QRunnable):
+class DbUpdaterComplete(QRunnable):
     """
-    Worker thread
+    Database updater to run update in individual thread
     """
 
     @pyqtSlot()
     def run(self):
-        '''
-        Your code goes in this function
-        '''
-        print("Thread start")
-        time.sleep(30)
-        print("Thread complete")
+        """
+        Update database in thread
+        """
+        print("Complete update started.")
+        get_table_of_lost_places()
+        get_center_town_coordinates()
+        print("Complete update finished.")
 
+
+class DbUpdaterNewlyAdded(QRunnable):
+    """
+    Database updater to run update in individual thread
+    """
+
+    @pyqtSlot()
+    def run(self):
+        """
+        Update database in thread
+        """
+        print("Update of newly added places started.")
+        update_table_of_lost_places()
+        get_center_town_coordinates()
+        print("Update of newly added places finished")
 
 
 class MainWindow(QMainWindow):
@@ -177,7 +193,6 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def on_click_draw(self):
         self.remove_places_from_layout()
-        # self.ui.textBrowser_places_info.clear()
         if not (input_number_correct(2, self.ui.lineEdit_center.text())
                 and input_number_correct(1, self.ui.lineEdit_radius.text())):
             QMessageBox.warning(self, 'Incorrect input', 'Incorrect input for radius or center',
@@ -216,13 +231,16 @@ class MainWindow(QMainWindow):
         self.print_places_into_scroll_area(places)
         self.show_html_map_in_grid()
 
-    def function_in_pool(self):
-        worker = Worker()
+    def run_complete_update_in_pool(self):
+        worker = DbUpdaterComplete()
+        self.threadpool.start(worker)
+
+    def run_update_newly_added_in_pool(self):
+        worker = DbUpdaterNewlyAdded()
         self.threadpool.start(worker)
 
     def on_click_update_db(self):
         box = QMessageBox()
-        # box.setIcon(QMessageBox.)
         box.setWindowTitle('Database update')
         box.setText('Update database\n- Complete update: remove database and get new. It might take few hours, '
                     'but if previously added places changed after adding, changes will be updated\n- Newly added: get '
@@ -239,14 +257,9 @@ class MainWindow(QMainWindow):
         box.exec()
 
         if box.clickedButton() == button_complete_update:
-            self.function_in_pool()
-            pass
-            # get_table_of_lost_places()
-            # get_center_town_coordinates()
+            self.run_complete_update_in_pool()
         if box.clickedButton() == button_newly_added:
-            pass
-            # update_table_of_lost_places()
-            # get_center_town_coordinates()
+            self.run_update_newly_added_in_pool()
 
 
 if __name__ == "__main__":
