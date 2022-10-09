@@ -39,15 +39,19 @@ class DbUpdaterComplete(QRunnable):
     Database updater to run update in individual thread
     """
 
+    def __init__(self, label):
+        super(DbUpdaterComplete, self).__init__()
+        self.label = label
+
     @pyqtSlot()
     def run(self):
         """
         Update database in thread
         """
-        print("Complete update started.")
+        self.label.setText("Complete update started. DO NOT CLOSE PROGRAM")
         get_table_of_lost_places()
         get_center_town_coordinates()
-        print("Complete update finished.")
+        self.label.setText("Complete update finished.")
 
 
 class DbUpdaterNewlyAdded(QRunnable):
@@ -55,15 +59,19 @@ class DbUpdaterNewlyAdded(QRunnable):
     Database updater to run update in individual thread
     """
 
+    def __init__(self, label):
+        super(DbUpdaterNewlyAdded, self).__init__()
+        self.label = label
+
     @pyqtSlot()
     def run(self):
         """
         Update database in thread
         """
-        print("Update of newly added places started.")
+        self.label.setText("Update of newly added places started. DO NOT CLOSE PROGRAM")
         update_table_of_lost_places()
         get_center_town_coordinates()
-        print("Update of newly added places finished")
+        self.label.setText("Update of newly added places finished")
 
 
 class MainWindow(QMainWindow):
@@ -232,11 +240,11 @@ class MainWindow(QMainWindow):
         self.show_html_map_in_grid()
 
     def run_complete_update_in_pool(self):
-        worker = DbUpdaterComplete()
+        worker = DbUpdaterComplete(self.ui.label)
         self.threadpool.start(worker)
 
     def run_update_newly_added_in_pool(self):
-        worker = DbUpdaterNewlyAdded()
+        worker = DbUpdaterNewlyAdded(self.ui.label)
         self.threadpool.start(worker)
 
     def on_click_update_db(self):
