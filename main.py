@@ -91,6 +91,9 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_draw_map_by_town.clicked.connect(self.on_click_draw_by_town)
         self.ui.pushButton_update_db.clicked.connect(self.on_click_update_db)
         self.ui.pushButton_draw_map_radius_around_town.clicked.connect(self.on_click_draw_by_radius_around_town)
+        self.ui.footer_label = QLabel()
+        self.ui.footer_label.setText('')
+        self.ui.statusbar.addWidget(self.ui.footer_label)
         self.towns = towns
         self.completer = QCompleter(self.towns)
         self.completer.setCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
@@ -240,11 +243,11 @@ class MainWindow(QMainWindow):
         self.show_html_map_in_grid()
 
     def run_complete_update_in_pool(self):
-        worker = DbUpdaterComplete(self.ui.label)
+        worker = DbUpdaterComplete(self.ui.footer_label)
         self.threadpool.start(worker)
 
     def run_update_newly_added_in_pool(self):
-        worker = DbUpdaterNewlyAdded(self.ui.label)
+        worker = DbUpdaterNewlyAdded(self.ui.footer_label)
         self.threadpool.start(worker)
 
     def on_click_update_db(self):
