@@ -154,8 +154,10 @@ class MainWindow(QMainWindow):
             text_area.setOpenExternalLinks(True)
             text_area.setOpenLinks(True)
             text_area.append('<a href="{}">{}</a>'.format(places[i][0], places[i][1]))
+            info = ['Category', 'Town', 'District', 'Destruction reason', 'Destruction year(s)', 'Actual status',
+                    'Latitude', 'Longitude']
             for j in range(2, len(places[i])):
-                text_area.append(str(places[i][j]))
+                text_area.append(f'{info[j-2]}: {str(places[i][j])}')
             # this with lambda function is needed to add multiple buttons with different labels
             button_town.clicked.connect(lambda ch, i_lambda=i: load_and_show(places, i_lambda))
             font_metrics_height = text_area.fontMetrics().height()
