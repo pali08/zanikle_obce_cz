@@ -17,7 +17,15 @@ def get_distance(latitude_specified_point, longitude_specified_point, latitude_p
                                     longitude_place]).km
 
 
-def get_places_in_radius(specified_point, radius, db_connection, close_connection=True):
+def filter_by_status_and_category(status, category, rows):
+    if status != '':
+        rows = [i for i in rows if i[7] == status]
+    if category != '':
+        rows = [i for i in rows if i[2] == category]
+    return rows
+
+
+def get_places_in_radius(specified_point, radius, db_connection, close_connection=True, status='', category=''):
     specified_point_latitude = str(specified_point[0])
     specified_point_longitude = str(specified_point[1])
     db_connection.create_function('getdistance', 4, get_distance)
@@ -30,7 +38,7 @@ def get_places_in_radius(specified_point, radius, db_connection, close_connectio
     rows = cursor.fetchall()
     if close_connection:
         db_connection.close()
-    return rows
+    return filter_by_status_and_category(status, category, rows)
 
 
 def get_municipality_and_district(municipality):
@@ -40,7 +48,7 @@ def get_municipality_and_district(municipality):
     return town, district
 
 
-def get_places_by_municipality(municipality, db_connection):
+def get_places_by_municipality(municipality, db_connection, status='', category=''):
     cursor = db_connection.cursor()
     if ',' in municipality:
         print('this branch is executed')
@@ -57,10 +65,10 @@ def get_places_by_municipality(municipality, db_connection):
                 municipality))
     rows = cursor.fetchall()
     db_connection.close()
-    return rows
+    return filter_by_status_and_category(status, category, rows)
 
 
-def get_places_in_radius_around_municipality(municipality, radius, db_connection):
+def get_places_in_radius_around_municipality(municipality, radius, db_connection, status='', category=''):
     cursor = db_connection.cursor()
     if ',' in municipality:
         town, district = get_municipality_and_district(municipality)
@@ -79,7 +87,7 @@ def get_places_in_radius_around_municipality(municipality, radius, db_connection
     for coordinate_pair in municipality_coordinates:
         result += get_places_in_radius(coordinate_pair, radius, db_connection, close_connection=False)
     db_connection.close()
-    return result
+    return filter_by_status_and_category(status, category, result)
 
 
 def get_all_towns():
@@ -89,3 +97,21 @@ def get_all_towns():
     towns = cursor.fetchall()
     db_connection.close()
     return [i[0] for i in towns]
+
+
+def get_all_distinct(column_name):
+    db_connection = sqlite3.connect(DB_FILE)
+    cursor = db_connection.cursor()
+    cursor.execute(
+        f'SELECT DISTINCT {column_name} FROM database_lost_places')
+    rows = cursor.fetchall()
+    db_connection.close()
+    return [i[0] for i in rows]
+
+
+def get_all_statuses():
+    return get_all_distinct('actual_state')
+
+
+def get_all_categories():
+    return get_all_distinct('category')

@@ -17,7 +17,7 @@ from pyqt6_plugins.examplebuttonplugin import QtGui
 
 from circle_area_webpage import get_html_map_with_markers, get_html_map_with_markers_town, \
     get_html_map_with_markers_town_and_radius, add_places_to_map
-from database_handling_queries import get_all_towns
+from database_handling_queries import get_all_towns, get_all_statuses, get_all_categories
 from get_actual_db import get_table_of_lost_places, get_center_town_coordinates, update_table_of_lost_places
 from gui_map_drawer import Ui_MainWindow
 
@@ -77,6 +77,8 @@ class DbUpdaterNewlyAdded(QRunnable):
 class MainWindow(QMainWindow):
     def __init__(self):
         towns = get_all_towns()
+        statuses = [None] + get_all_statuses()
+        categories = [None] + get_all_categories()
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -85,6 +87,8 @@ class MainWindow(QMainWindow):
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
         self.ui.gridLayout_html_map.setColumnStretch(0, 1)
         self.ui.gridLayout_html_map.setRowStretch(0, 1)
+        self.ui.comboBox_type.addItems(categories)
+        self.ui.comboBox_status.addItems(statuses)
         self.ui.pushButton_draw_map_by_coordinates.clicked.connect(self.on_click_draw)
         self.ui.pushButton_save_map.clicked.connect(self.on_click_save_map_html)
         self.ui.pushButton_save_map_img.clicked.connect(self.on_click_save_map_img)
@@ -128,7 +132,7 @@ class MainWindow(QMainWindow):
         with open(file_path, mode='r', encoding='utf-8') as f:
             html_map = f.read()
         self.ui.qWebEngineView_html_map.setHtml(html_map)
-        self.ui.gridLayout_html_map.addWidget(self.ui.qWebEngineView_html_map, 6, 0, 1, 6)
+        self.ui.gridLayout_html_map.addWidget(self.ui.qWebEngineView_html_map, 8, 0, 1, 8)
 
     @pyqtSlot()
     def get_clicked_town_map(self, places, index_of_place):
@@ -213,7 +217,9 @@ class MainWindow(QMainWindow):
         textbox_value_center = self.ui.lineEdit_center.text()
         textbox_value_radius = float(self.ui.lineEdit_radius.text())
         html_map_filepath = os.path.join('temporary_files', 'map.html')
-        places = get_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath)
+        places = get_html_map_with_markers(textbox_value_center, textbox_value_radius, html_map_filepath,
+                                           status=self.ui.comboBox_status.currentText(),
+                                           category=self.ui.comboBox_type.currentText())
         if self.places_empty(places):
             return
         self.print_places_into_scroll_area(places)
@@ -221,8 +227,11 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_click_draw_by_town(self):
+        # print(self.ui.comboBox_status.currentText())
         self.remove_places_from_layout()
-        places = get_html_map_with_markers_town(self.ui.lineEdit_town.text(), self.html_map_filepath)
+        places = get_html_map_with_markers_town(self.ui.lineEdit_town.text(), self.html_map_filepath,
+                                                status=self.ui.comboBox_status.currentText(),
+                                                category=self.ui.comboBox_type.currentText())
         if self.places_empty(places):
             return
         self.print_places_into_scroll_area(places)
@@ -236,7 +245,9 @@ class MainWindow(QMainWindow):
                                 QMessageBox.StandardButton.Close)
             return
         places = get_html_map_with_markers_town_and_radius(self.ui.lineEdit_town.text(), self.ui.lineEdit_radius.text(),
-                                                           self.html_map_filepath)
+                                                           self.html_map_filepath,
+                                                           status=self.ui.comboBox_status.currentText(),
+                                                           category=self.ui.comboBox_type.currentText())
         if self.places_empty(places):
             return
         self.print_places_into_scroll_area(places)

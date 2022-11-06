@@ -27,6 +27,12 @@
     <bool>false</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout" columnstretch="15,5">
+    <property name="horizontalSpacing">
+     <number>6</number>
+    </property>
+    <property name="verticalSpacing">
+     <number>7</number>
+    </property>
     <item row="1" column="1">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -46,7 +52,7 @@
            <x>0</x>
            <y>0</y>
            <width>255</width>
-           <height>811</height>
+           <height>831</height>
           </rect>
          </property>
         </widget>
@@ -55,17 +61,68 @@
      </layout>
     </item>
     <item row="1" column="0">
-     <layout class="QGridLayout" name="gridLayout_html_map" rowstretch="0,0,0,0,0,0,10" columnstretch="0,10,0,0,10,0">
+     <layout class="QGridLayout" name="gridLayout_html_map" rowstretch="0,0,0,0,0,0,0,0,0" columnstretch="1,1,1,1,2,2,2,2">
       <property name="sizeConstraint">
        <enum>QLayout::SetMaximumSize</enum>
       </property>
       <property name="spacing">
-       <number>1</number>
+       <number>0</number>
       </property>
-      <item row="0" column="3">
+      <item row="5" column="2">
+       <widget class="QLabel" name="label_type">
+        <property name="text">
+         <string>Type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="5">
+       <widget class="QPushButton" name="pushButton_draw_map_radius_around_town">
+        <property name="text">
+         <string>radius around town</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="comboBox_status"/>
+      </item>
+      <item row="0" column="5">
        <widget class="QPushButton" name="pushButton_draw_map_by_coordinates">
         <property name="text">
          <string>by coordinates</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QPushButton" name="pushButton_draw_map_by_town">
+        <property name="text">
+         <string>by town (only)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="7">
+       <widget class="QPushButton" name="pushButton_save_map_img">
+        <property name="text">
+         <string>Save map as png</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="lineEdit_radius"/>
+      </item>
+      <item row="7" column="0" rowspan="2" colspan="8">
+       <widget class="QWebEngineView" name="qWebEngineView_html_map" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>8</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_status">
+        <property name="text">
+         <string>Status</string>
         </property>
        </widget>
       </item>
@@ -76,62 +133,10 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
-       <widget class="QPushButton" name="pushButton_draw_map_by_town">
-        <property name="text">
-         <string>by town (only)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QLineEdit" name="lineEdit_save_html">
-        <property name="placeholderText">
-         <string>path to save map</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_center">
-        <property name="text">
-         <string>Center</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_draw_map">
-        <property name="text">
-         <string>Draw map</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="5">
-       <widget class="QPushButton" name="pushButton_save_map">
-        <property name="text">
-         <string>Save map as html</string>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="0">
        <widget class="QLabel" name="label_town">
         <property name="text">
          <string>Town</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_radius"/>
-      </item>
-      <item row="4" column="3">
-       <widget class="QPushButton" name="pushButton_draw_map_radius_around_town">
-        <property name="text">
-         <string>radius around town</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_center">
-        <property name="placeholderText">
-         <string>latitude, longitude</string>
         </property>
        </widget>
       </item>
@@ -142,31 +147,52 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0" rowspan="2" colspan="6">
-       <widget class="QWebEngineView" name="qWebEngineView_html_map" native="true"/>
-      </item>
-      <item row="1" column="5">
-       <widget class="QPushButton" name="pushButton_save_map_img">
-        <property name="text">
-         <string>Save map as png</string>
+      <item row="0" column="6">
+       <widget class="QLineEdit" name="lineEdit_save_html">
+        <property name="placeholderText">
+         <string>path to save map</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="5">
+      <item row="4" column="7">
        <widget class="QPushButton" name="pushButton_update_db">
         <property name="text">
          <string>Update database</string>
         </property>
        </widget>
       </item>
+      <item row="5" column="3">
+       <widget class="QComboBox" name="comboBox_type"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEdit_center">
+        <property name="placeholderText">
+         <string>latitude, longitude</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="7">
+       <widget class="QPushButton" name="pushButton_save_map">
+        <property name="text">
+         <string>Save map as html</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_center">
+        <property name="text">
+         <string>Center</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="label_draw_map">
+        <property name="text">
+         <string>Draw map</string>
+        </property>
+       </widget>
+      </item>
      </layout>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
     </item>
    </layout>
   </widget>
